@@ -6,3 +6,6 @@
 #define TP_2017_1C_LOSPANCHOS_CONSOLA_H
 
 #endif //TP_2017_1C_LOSPANCHOS_CONSOLA_C_H
+
+void consola_imprimir_encabezado();
+void consola_imprimir_menu();
