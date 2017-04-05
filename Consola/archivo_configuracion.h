@@ -12,6 +12,5 @@
 
 #endif /* ARCHIVO_CONFIGURACION_H_ */
 
-void abrir_archivo_config();
-void validar_archivo_config();
+int validar_archivo_config();
 void cerrar_archivo_config();
