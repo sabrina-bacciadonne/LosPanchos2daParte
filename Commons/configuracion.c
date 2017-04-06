@@ -9,82 +9,108 @@
 
 void* cargarConfiguracion(char* path,int configParamAmount,processType configType, t_log* logger){
 	t_config* configFile;
-	void* config;
-
+	configConsole* confConsola;
+	configCPU* confCPU;
+	configFileSystem* confFileSystem;
+	configKernel* confKernel;
+	configMemoria* confMemoria;
 
 	configFile = config_create(path);
 	if (!configFile) {
 		log_error(logger, "No se encontro el archivo de configuracion.\n");
-		exit(NULL);
+		exit(EXIT_FAILURE);
 	}
 
 	if (config_keys_amount(configFile) != configParamAmount) {
 		log_error(logger, "No se encuentran inicializados todos los parametros de configuracion requeridos.");
-		exit(NULL);
+		exit(EXIT_FAILURE);
 	}
 
 	switch(configType){
 	case CONSOLA:
-		config = (configConsole*)malloc(sizeof(configConsole));
-		config->puerto = leerPuerto(configFile, "PUERTO_KERNEL", logger);
-		config->ip = leerIP(configFile, "IP_KERNEL", logger);
-		break;
+		confConsola = (configConsole*) malloc(sizeof(configConsole));
+		confConsola->puerto = leerPuerto(configFile, "PUERTO_KERNEL", logger);
+		confConsola->ip = leerIP(configFile, "IP_KERNEL", logger);
+		return confConsola;
 	case CPU:
-		config = (configCPU*)malloc(sizeof(configCPU));
-		config->puertoKernel = leerPuerto(configFile, "PUERTO_KERNEL", logger);
-		config->ipKernel = leerIP(configFile, "IP_KERNEL", logger);
-		config->puertoMemoria = leerPuerto(configFile, "PUERTO_MEMORIA", logger);
-		config->ipMemoria = leerIP(configFile, "IP_MEMORIA", logger);
-		break;
+		confCPU = (configCPU*)malloc(sizeof(configCPU));
+		confCPU->puertoKernel = leerPuerto(configFile, "PUERTO_KERNEL", logger);
+		confCPU->ipKernel = leerIP(configFile, "IP_KERNEL", logger);
+		confCPU->puertoMemoria = leerPuerto(configFile, "PUERTO_MEMORIA", logger);
+		confCPU->ipMemoria = leerIP(configFile, "IP_MEMORIA", logger);
+		return confCPU;
 	case FILESYSTEM:
-		config = (configFileSystem*)malloc(sizeof(configFileSystem));
-		config->puerto = leerPuerto(configFile, "PUERTO", logger);
-		break;
+		confFileSystem = (configFileSystem*)malloc(sizeof(configFileSystem));
+		confFileSystem->puerto = leerPuerto(configFile, "PUERTO", logger);
+		confFileSystem->puntoMontaje = leerString(configFile, "PUERTO", logger);
+		return confFileSystem;
 	case KERNEL:
-		config = (configKernel*)malloc(sizeof(configKernel));
-		break;
+		confKernel = (configKernel*)malloc(sizeof(configKernel));
+		confKernel->puerto_prog = leerPuerto(configFile, "PUERTO_PROG", logger);
+		confKernel->puertoCPU = leerPuerto(configFile, "PUERTO_CPU", logger);
+		confKernel->ipMemoria = leerIP(configFile, "IP_MEMORIA", logger);
+		confKernel->puertoMemoria = leerPuerto(configFile, "PUERTO_MEMORIA", logger);
+		confKernel->ipFS = leerIP(configFile, "IP_FS", logger);
+		confKernel->puertoFS = leerPuerto(configFile, "PUERTO_FS", logger);
+		confKernel->quantum = leerInt(configFile, "QUANTUM", logger);
+		confKernel->quantumSleep = leerInt(configFile, "QUANTUM_SLEEP", logger);
+		confKernel-> algoritmo = leerString(configFile, "ALGORITMO", logger);
+		confKernel->gradoMultiprog = leerInt(configFile, "GRADO_MULTIPROG", logger);
+		confKernel->semIds = leerString(configFile, "SEM_IDS", logger);
+		confKernel->semInits = leerString(configFile, "SEM_INIT", logger);
+		confKernel->sharedVars = leerString(configFile, "SHARED_VARS", logger);
+		confKernel->stackSize = leerInt(configFile, "STACK_SIZE", logger);
+		return confKernel;
 	case MEMORIA:
-		config = (configMemoria*)malloc(sizeof(configMemoria));
-		break;
+		confMemoria = (configMemoria*)malloc(sizeof(configMemoria));
+		confMemoria->puerto = leerPuerto(configFile, "PUERTO_PROG", logger);
+		confMemoria->marcos = leerInt(configFile, "PUERTO_FS", logger);
+		confMemoria->marcoSize = leerInt(configFile, "PUERTO_FS", logger);
+		confMemoria->entradasCache =  leerInt(configFile, "PUERTO_FS", logger);
+		confMemoria->cacheXProc =  leerInt(configFile, "PUERTO_FS", logger);
+		confMemoria->retardoMemoria =  leerInt(configFile, "PUERTO_FS", logger);
+		return confMemoria;
+	default:
+			return NULL;
 	}
 
-	return config;
+}
+
+char* leerString (void* configFile, char* parametro, t_log* logger){
+	char* string = "";
+	if (config_has_property(configFile, parametro)) {
+		string = config_get_string_value(configFile, parametro);
+		//TODO: Valida que no sea vacio
+	} else {
+		log_error(logger, "No se encuentra el parametro  en el archivo de config.");//TODO generar el string correcto para el error
+		exit(EXIT_FAILURE);
+	}
+	return string;
+}
+
+int leerInt (void* configFile, char* parametro, t_log* logger){
+	int valor = 0;
+	if (config_has_property(configFile, parametro)) {
+		valor = config_get_int_value(configFile, parametro);
+	} else {
+		log_error(logger, "No se encuentra el parametro en el archivo de configuracion.");//TODO GENERAR UN BUEN TEXTO PARA EL LOG
+		exit(EXIT_FAILURE);
+	}
+	return valor;
 }
 
 int leerPuerto (void* configFile, char* parametro, t_log* logger){
 	int puerto = 0;
-	if (config_has_property(configFile, parametro)) {
-		puerto = config_get_int_value(configFile, parametro);
-		validar_puerto(puerto, logger);
-	} else {
-		log_error(logger, "No se encuentra el parametro puerto programa en el archivo.");
-		exit(EXIT_FAILURE);
-	}
+	puerto = leerInt(configFile, parametro, logger);
+	validar_puerto(puerto, logger);
 	return puerto;
 }
 
 char* leerIP (void* configFile, char* parametro, t_log* logger){
-	char* ip = NULL;
-	if (config_has_property(configFile, "IP_KERNEL")) {
-		ip = config_get_string_value(configFile, "IP_KERNEL");
-		validar_ip(ip, logger);
-	} else {
-		log_error(logger, "No se encuentra el parametro IP programa en el archivo.");
-		exit(EXIT_FAILURE);
-	}
+	char* ip = "";
+	ip = leerString (configFile, parametro,logger);
+	validar_ip(ip,logger);
 	return ip;
-}
-
-char* leerString (void* configFile, char* parametro, t_log* logger){
-	char* string = NULL;
-	if (config_has_property(configFile, "IP_KERNEL")) {
-		string = config_get_string_value(configFile, "IP_KERNEL");
-		//TODO: Valida que no sea vacio
-	} else {
-		log_error(logger, "No se encuentra el parametro IP programa en el archivo.");
-		exit(EXIT_FAILURE);
-	}
-	return string;
 }
 
 void validar_puerto(int puerto, t_log* logger){
@@ -96,7 +122,6 @@ void validar_puerto(int puerto, t_log* logger){
 }
 
 void validar_ip(char* ip, t_log* logger) {
-	char* messType;
 	regex_t regex;
 	int regres;
 	char msgbuf[100];
@@ -118,116 +143,6 @@ void validar_ip(char* ip, t_log* logger) {
 	    regerror(regres, &regex, msgbuf, sizeof(msgbuf));
 //	    fprintf(stderr, "Regex match failed: %s\n", msgbuf);
 	}
-}
-
-void* validar_archivo_config(t_log* logger) {
-
-	t_config* config;
-
-	config = config_create(
-			"/home/utnso/workspace/tp-2017-1c--LosPanchos/Kernel/config");
-
-	if (!config) {
-		log_error(logger, "No se encontro el archivo de configuracion.\n");
-		exit(EXIT_FAILURE);
-	}
-
-	if (config_keys_amount(config) != 14) {
-		log_error(logger,
-				"No se encuentran inicializados todos los parametros de configuracion requeridos.");
-		exit(EXIT_FAILURE);
-	}
-
-	if (config_has_property(config, "PUERTO_PROG")) {
-		datos_config->puerto_prog = config_get_int_value(config, "PUERTO_PROG");	//FALTA VALIDACION DE IP, INVESTIGAR REGEX
-		if (datos_config->puerto_prog < 1024) {	//FALTA VALIDACION DE PUERTO VACIO
-			log_error(logger,
-					"El numero de puerto indicado se encuentra reservado para el sistema.");
-			exit(EXIT_FAILURE); }
-	} else {
-		log_error(logger,
-				"No se encuentra el parametro puerto programa en el archivo.");
-		exit(EXIT_FAILURE);
-	}
-
-	if (config_has_property(config, "PUERTO_CPU")) {
-		datos_config->puerto_cpu = config_get_int_value(config,"PUERTO_CPU");
-		if (datos_config->puerto_cpu < 1024) {	//FALTA VALIDACION DE PUERTO VACIO
-			log_error(logger,
-					"El numero de puerto indicado se encuentra reservado para el sistema.");
-			exit(EXIT_FAILURE);
-		}
-	}
-
-	if (config_has_property(config, "IP_MEMORIA")) {
-			datos_config->ip_memoria = config_get_string_value(config, "IP_MEMORIA");	//FALTA VALIDACION DE IP, INVESTIGAR REGEX
-			validar_ip(datos_config->ip_memoria,logger);
-		}
-
-
-	if (config_has_property(config, "IP_FS")) {
-			datos_config->ip_fs = config_get_string_value(config, "IP_FS");	//FALTA VALIDACION DE IP, INVESTIGAR REGEX
-			validar_ip(datos_config->ip_fs,logger);
-		}
-
-	if (config_has_property(config, "PUERTO_FS")) {
-		datos_config->puerto_fs = config_get_int_value(config,"PUERTO_FS");
-		if (datos_config->puerto_fs < 1024) {//FALTA VALIDACION DE PUERTO VACIO
-			log_error(logger,
-					"El numero de puerto indicado se encuentra reservado para el sistema.");
-			exit(EXIT_FAILURE);
-		}
-	}
-
-	if (config_has_property(config, "QUANTUM")) {
-			datos_config->quantum = config_get_int_value(config, "QUANTUM");
-			if (datos_config->quantum < 0){
-				log_error(logger,"El quantum debe ser mayor que 0.");
-				exit(EXIT_FAILURE);
-			}
-		}
-
-	if (config_has_property(config, "QUANTUM_SLEEP")) {
-			datos_config->quantum_sleep = config_get_int_value(config, "QUANTUM_SLEEP");
-			if (datos_config->quantum_sleep < 0){
-				log_error(logger,"El quantum sleep debe ser mayor que 0.");
-				exit(EXIT_FAILURE);
-			}
-		}
-
-	if (config_has_property(config, "ALGORITMO")) {
-			datos_config->algoritmo= config_get_string_value(config, "ALGORITMO");
-
-			int comp = 0;
-			int compa = 0;
-
-			comp = strcmp(datos_config->algoritmo,"FF");
-			compa = strcmp(datos_config->algoritmo,"RR");
-
-			if (comp != 0 && compa != 0) {
-				log_error(logger,"El algoritmo indicado es invalido.");
-				exit(EXIT_FAILURE);
-			}
-		}
-
-	if (config_has_property(config, "GRADO_MULTIPROG")) {
-			datos_config->grado_multiprog = config_get_int_value(config, "GRADO_MULTIPROG");
-			if (datos_config->grado_multiprog < 0){
-				log_error(logger,"El grado de multiprogramacion debe ser mayor que 0.");
-				exit(EXIT_FAILURE);
-			}
-		}
-
-	if (config_has_property(config, "STACK_SIZE")) {
-			datos_config->stack_size = config_get_int_value(config, "STACK_SIZE");
-			if (datos_config->stack_size < 0){
-				log_error(logger,"El grado de multiprogramacion debe ser mayor que 0.");
-				exit(EXIT_FAILURE);
-			}
-		}
-
-return datos_config;
-
 }
 
 
