@@ -31,7 +31,16 @@
 # Debug files
 *.dSYM/
 *.su
+Debug/
 
 #Eclipse
 .cproject
 .project
+*.settings/
+
+#Log files
+LOG_*
+log_*
+
+#git files
+*gitignore
