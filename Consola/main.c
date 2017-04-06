@@ -10,15 +10,17 @@
 
 int main () {
 
-	t_datos_config* datos_config = malloc(sizeof(t_datos_config));
-	t_log* logger = log_create("LOG_CONSOLA", "CONSOLA", 1, LOG_LEVEL_TRACE);
+	puts("Consola\n");
+	int res;
+	t_datos_config datos_config;
+	t_log* logger = log_create("LOG_CONSOLA", "CONSOLA", 1, LOG_LEVEL_DEBUG);
 
-	datos_config = validar_archivo_config(&datos_config,&logger);
+	res = validar_archivo_config(&datos_config,logger);
 	consola_imprimir_encabezado();
 	consola_imprimir_menu();
 
-	printf("%s\n",datos_config->ip_kernel);
-	printf("%d",datos_config->puerto_kernel);
+	printf("%s\n",datos_config.ip_kernel);
+	printf("%d",datos_config.puerto_kernel);
 
 	//en datos_config están los datos para conectarse al kernel!!!!
 

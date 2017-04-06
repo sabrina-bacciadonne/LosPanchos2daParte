@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include "archivo_configuracion.h"
 
-t_datos_config* validar_archivo_config(t_datos_config* datos_config,t_log* logger) {
+int validar_archivo_config(t_datos_config* datos_config,t_log* logger) {
 
 	t_config* config;
 
@@ -23,9 +23,7 @@ t_datos_config* validar_archivo_config(t_datos_config* datos_config,t_log* logge
 		exit(EXIT_FAILURE);
 	}
 
-	int cantidad_claves = config_keys_amount(config);
-
-	if (cantidad_claves != 2) {
+	if (config_keys_amount(config) != 2) {
 		log_error(logger,
 				"No se encuentran inicializados todos los parametros de configuracion requeridos.");
 		exit(EXIT_FAILURE);
@@ -54,7 +52,7 @@ t_datos_config* validar_archivo_config(t_datos_config* datos_config,t_log* logge
 		exit(EXIT_FAILURE);
 	}
 
-	return datos_config;
+	return 0;
 
 }
 
