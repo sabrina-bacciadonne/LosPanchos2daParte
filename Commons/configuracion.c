@@ -5,14 +5,122 @@
  *      Author: utnso
  */
 
-#include <stdio.h>
-#include <commons/config.h>
-#include <regex.h>
-#include <stdlib.h>
-#include <string.h>
-#include "archivo_configuracion.h"
+#include "configuracion.h"
 
-t_datos_config* validar_archivo_config(t_datos_config* datos_config,t_log* logger) {
+void* cargarConfiguracion(char* path,int configParamAmount,processType configType, t_log* logger){
+	t_config* configFile;
+	void* config;
+
+
+	configFile = config_create(path);
+	if (!configFile) {
+		log_error(logger, "No se encontro el archivo de configuracion.\n");
+		exit(NULL);
+	}
+
+	if (config_keys_amount(configFile) != configParamAmount) {
+		log_error(logger, "No se encuentran inicializados todos los parametros de configuracion requeridos.");
+		exit(NULL);
+	}
+
+	switch(configType){
+	case CONSOLA:
+		config = (configConsole*)malloc(sizeof(configConsole));
+		config->puerto = leerPuerto(configFile, "PUERTO_KERNEL", logger);
+		config->ip = leerIP(configFile, "IP_KERNEL", logger);
+		break;
+	case CPU:
+		config = (configCPU*)malloc(sizeof(configCPU));
+		config->puertoKernel = leerPuerto(configFile, "PUERTO_KERNEL", logger);
+		config->ipKernel = leerIP(configFile, "IP_KERNEL", logger);
+		config->puertoMemoria = leerPuerto(configFile, "PUERTO_MEMORIA", logger);
+		config->ipMemoria = leerIP(configFile, "IP_MEMORIA", logger);
+		break;
+	case FILESYSTEM:
+		config = (configFileSystem*)malloc(sizeof(configFileSystem));
+		config->puerto = leerPuerto(configFile, "PUERTO", logger);
+		break;
+	case KERNEL:
+		config = (configKernel*)malloc(sizeof(configKernel));
+		break;
+	case MEMORIA:
+		config = (configMemoria*)malloc(sizeof(configMemoria));
+		break;
+	}
+
+	return config;
+}
+
+int leerPuerto (void* configFile, char* parametro, t_log* logger){
+	int puerto = 0;
+	if (config_has_property(configFile, parametro)) {
+		puerto = config_get_int_value(configFile, parametro);
+		validar_puerto(puerto, logger);
+	} else {
+		log_error(logger, "No se encuentra el parametro puerto programa en el archivo.");
+		exit(EXIT_FAILURE);
+	}
+	return puerto;
+}
+
+char* leerIP (void* configFile, char* parametro, t_log* logger){
+	char* ip = NULL;
+	if (config_has_property(configFile, "IP_KERNEL")) {
+		ip = config_get_string_value(configFile, "IP_KERNEL");
+		validar_ip(ip, logger);
+	} else {
+		log_error(logger, "No se encuentra el parametro IP programa en el archivo.");
+		exit(EXIT_FAILURE);
+	}
+	return ip;
+}
+
+char* leerString (void* configFile, char* parametro, t_log* logger){
+	char* string = NULL;
+	if (config_has_property(configFile, "IP_KERNEL")) {
+		string = config_get_string_value(configFile, "IP_KERNEL");
+		//TODO: Valida que no sea vacio
+	} else {
+		log_error(logger, "No se encuentra el parametro IP programa en el archivo.");
+		exit(EXIT_FAILURE);
+	}
+	return string;
+}
+
+void validar_puerto(int puerto, t_log* logger){
+	if (puerto < PUERTO_MAX) {
+		log_error(logger, "El numero de puerto indicado se encuentra reservado para el sistema.");
+		exit(EXIT_FAILURE);
+	}
+	return;
+}
+
+void validar_ip(char* ip, t_log* logger) {
+	char* messType;
+	regex_t regex;
+	int regres;
+	char msgbuf[100];
+
+	regres = regcomp(&regex, "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
+					REG_EXTENDED);		//REVISAR LA EXPRESION REGULAR
+	if (regres) {
+		log_error(logger,"Error al generar la regex para validar IP.");
+		exit(1);
+	}
+
+	regres = regexec(&regex, ip, 0, NULL, 0);
+
+	if (regres == REG_NOMATCH) {
+		log_error(logger,"IP invalida.");
+		exit(EXIT_FAILURE);
+	} else {
+//		log_info(logger, "IP del Kernel valida.");
+	    regerror(regres, &regex, msgbuf, sizeof(msgbuf));
+//	    fprintf(stderr, "Regex match failed: %s\n", msgbuf);
+	}
+}
+
+void* validar_archivo_config(t_log* logger) {
 
 	t_config* config;
 
@@ -122,36 +230,7 @@ return datos_config;
 
 }
 
-void validar_ip(char* ip, t_log* logger) {
 
-	char* messType;
-
-	regex_t regex;
-	int regres;
-	char msgbuf[100];
-
-
-	regres =
-			regcomp(&regex,
-					"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
-					REG_EXTENDED);		//REVISAR LA EXPRESION REGULAR
-
-	if (regres) {
-		fprintf(stderr, "Could not compile regex\n");
-		exit(1);
-	}
-
-	regres = regexec(&regex, ip, 0, NULL, 0);
-
-	if (regres == REG_NOMATCH) {
-		log_error(logger,"IP invalida.");
-//		exit(EXIT_FAILURE);
-	} else {
-//		log_info(logger, "IP del Kernel valida.");
-	    regerror(regres, &regex, msgbuf, sizeof(msgbuf));
-//	    fprintf(stderr, "Regex match failed: %s\n", msgbuf);
-	}
-}
 
 
 

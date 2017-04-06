@@ -5,4 +5,7 @@
 #ifndef TP_2017_1C_LOSPANCHOS_KERNEL_H
 #define TP_2017_1C_LOSPANCHOS_KERNEL_H
 
+#include "../Commons/configuracion.h"
+
+
 #endif //TP_2017_1C_LOSPANCHOS_KERNEL_H
