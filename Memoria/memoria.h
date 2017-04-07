@@ -6,3 +6,7 @@
 #define TP_2017_1C_LOSPANCHOS_MEMORIA_H
 
 #endif //TP_2017_1C_LOSPANCHOS_MEMORIA_H
+
+#include "../Commons/configuracion.h"
+#include <commons/log.h>
+#include <commons/config.h>

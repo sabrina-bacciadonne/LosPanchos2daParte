@@ -42,7 +42,8 @@ void* cargarConfiguracion(char* path,int configParamAmount,processType configTyp
 	case FILESYSTEM:
 		confFileSystem = (configFileSystem*)malloc(sizeof(configFileSystem));
 		confFileSystem->puerto = leerPuerto(configFile, "PUERTO", logger);
-		confFileSystem->puntoMontaje = leerString(configFile, "PUERTO", logger);
+		confFileSystem->puntoMontaje = leerString(configFile, "PUNTO_MONTAJE", logger);
+		//TODO: VALIDAR EL PUNTOMONTAJE CON SINTAXIS DE DIRECTORIO LINUX
 		return confFileSystem;
 	case KERNEL:
 		confKernel = (configKernel*)malloc(sizeof(configKernel));
@@ -63,12 +64,12 @@ void* cargarConfiguracion(char* path,int configParamAmount,processType configTyp
 		return confKernel;
 	case MEMORIA:
 		confMemoria = (configMemoria*)malloc(sizeof(configMemoria));
-		confMemoria->puerto = leerPuerto(configFile, "PUERTO_PROG", logger);
-		confMemoria->marcos = leerInt(configFile, "PUERTO_FS", logger);
-		confMemoria->marcoSize = leerInt(configFile, "PUERTO_FS", logger);
-		confMemoria->entradasCache =  leerInt(configFile, "PUERTO_FS", logger);
-		confMemoria->cacheXProc =  leerInt(configFile, "PUERTO_FS", logger);
-		confMemoria->retardoMemoria =  leerInt(configFile, "PUERTO_FS", logger);
+		confMemoria->puerto = leerPuerto(configFile, "PUERTO", logger);
+		confMemoria->marcos = leerInt(configFile, "MARCOS", logger);
+		confMemoria->marcoSize = leerInt(configFile, "MARCO_SIZE", logger);
+		confMemoria->entradasCache =  leerInt(configFile, "ENTRADAS_CACHE", logger);
+		confMemoria->cacheXProc =  leerInt(configFile, "CACHE_X_PROC", logger);
+		confMemoria->retardoMemoria =  leerInt(configFile, "RETARDO_MEMORIA", logger);
 		return confMemoria;
 	default:
 			return NULL;

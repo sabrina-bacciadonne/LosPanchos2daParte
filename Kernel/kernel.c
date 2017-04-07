@@ -6,11 +6,12 @@
 
 
 int main () {
-	t_log* logger = log_create("log_kernel", "KERNEL", 14, LOG_LEVEL_TRACE);
+	t_log* logger = log_create("log_kernel", "KERNEL", 1, LOG_LEVEL_TRACE);
 	processType process = KERNEL;
 	configKernel* conf = (configKernel*) cargarConfiguracion( "./config", 14, process, logger);
 
 	puts("Kernel.");
+	puts(conf->ipMemoria);
 
 	liberar_memoria(logger, conf);
 	return EXIT_SUCCESS;
