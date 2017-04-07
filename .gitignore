@@ -36,8 +36,12 @@ Debug/
 #Eclipse
 .cproject
 .project
-.settings/
+*.settings/
 
 #Log files
 LOG_*
 log_*
+
+#git files
+*gitignore
+
