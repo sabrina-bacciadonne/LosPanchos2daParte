@@ -4,7 +4,6 @@
 
 #include "memoria.h"
 
-
 int main () {
 	t_log* logger = log_create("log_memoria", "MEMORIA", 1, LOG_LEVEL_TRACE);
 	processType process = MEMORIA;

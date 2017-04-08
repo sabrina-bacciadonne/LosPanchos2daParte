@@ -4,6 +4,7 @@
 
 #include "filesystem.h"
 
+
 int main (int argc, char *argv[]) {
 	t_log* logger = log_create("log_kernel", "FILESYSTEM", 1, LOG_LEVEL_TRACE);
 	processType process = FILESYSTEM;

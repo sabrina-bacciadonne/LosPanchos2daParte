@@ -37,6 +37,7 @@ Debug/
 .cproject
 .project
 *.settings/
+*.metadata/
 
 #Log files
 LOG_*
@@ -44,3 +45,4 @@ log_*
 
 #git files
 *gitignore
+

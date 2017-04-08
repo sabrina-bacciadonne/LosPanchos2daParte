@@ -4,6 +4,7 @@
 
 #include "cpu.h"
 
+
 int main (int argc, char *argv[]) {
 	t_log* logger = log_create("log_kernel", "CPU", 1, LOG_LEVEL_TRACE);
 	processType process = CPU;
