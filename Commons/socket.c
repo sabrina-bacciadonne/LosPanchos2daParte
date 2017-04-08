@@ -10,7 +10,7 @@
 
 int cargarEstructuras(int puerto,char* ip, t_log* logger){
 	int socketFD, errorLength;
-	struct addrinfo hints, *servInfo, p;
+	struct addrinfo hints, *servInfo, *p;
 	int rv;
 	socklen_t addrLen;
 	char s[INET_ADDRSTRLEN];
@@ -58,4 +58,35 @@ int cargarEstructuras(int puerto,char* ip, t_log* logger){
 	}
 	freeaddrinfo(servInfo);
 	return socketFD;
+}
+
+int EnviarHandshake (int socket, uint16_t codigoMio,uint16_t codigoOtro, t_log* logger){
+
+	t_package handshakeMsg;
+	t_package* handshakeRcv;
+	handshakeMsg.code = codigoMio;
+
+	if(enviar(socket,codigoMio,NULL,logger)){
+		log_error(logger, "Error al enviar el handshake");
+		return EXIT_FAILURE;
+	}
+	if(recibir(socket,&handshakeRcv,logger)){
+		log_error(logger,"Error al recibir el handshake");
+		return EXIT_FAILURE;
+	}
+	if(handshakeRcv.code != codigoOtro){
+		log_warning(logger, "Codigo de handshake incorrecto");
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+}
+
+uint32_t packageSize(t_package package){
+	return package.size + packageHeaderSize;
+}
+}
+int enviar(int socket,int code,char*data, t_log* logger){
+	t_package package;
+	package.code = code;
+	package.size = sizeof
 }
