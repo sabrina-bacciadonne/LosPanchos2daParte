@@ -9,3 +9,7 @@
 
 void consola_imprimir_encabezado();
 void consola_imprimir_menu();
+
+#include "../Commons/configuracion.h"
+#include <commons/log.h>
+#include <commons/config.h>

@@ -11,7 +11,12 @@ int main () {
 	configMemoria* conf = (configMemoria*) cargarConfiguracion( "./config", 7, process, logger);
 
 	puts("MEMORIA.");
-	printf("%d",conf->puerto);
+	printf("PUERTO: %d\n",conf->puerto);
+	printf("MARCOS: %d\n",conf->marcos);
+	printf("MARCOS SIZE: %d\n",conf->marcoSize);
+	printf("ENTRADAS CACHE: %d\n",conf->entradasCache);
+	printf("CACHE X PROC: %d\n",conf->cacheXProc);
+	printf("RETARDO MEMORIA: %d\n",conf->retardoMemoria);
 
 	liberar_memoria(logger, conf);
 	return EXIT_SUCCESS;
