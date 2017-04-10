@@ -10,18 +10,18 @@
 
 #include <commons/log.h>
 #include <commons/string.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <sys/time.h>
-#include <arpa/inet.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include <arpa/inet.h>
-#include <netdb.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <stdbool.h>

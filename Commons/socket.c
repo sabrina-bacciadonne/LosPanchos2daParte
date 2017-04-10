@@ -24,10 +24,10 @@ int cargarEstructuras(int puerto,char* ip, t_log* logger){
 	}
 
 	if ((rv = getaddrinfo(ip, puerto, &hints, &servInfo)) != 0) {
-		errorLength = strlen("getaddrinfo: \n") + strlen(gai_strerror(rv)) + 1;
-		char error[errorLength];
-		sprintf(error, "getaddrinfo: %s\n", gai_strerror(rv));
-		log_error(logger, "error");
+		errorLength = strlen("getaddrinfo: \n") + ) + 1;
+		char* addrError = string_from_format("getaddrinfo: %s\n", gai_strerror(rv));
+		log_error(logger,addrError);
+		free(addrError);
 		return EXIT_FAILURE;
 	}
 	for(p = servInfo; p != NULL; p = p->ai_next) {
@@ -81,12 +81,37 @@ int EnviarHandshake (int socket, uint16_t codigoMio,uint16_t codigoOtro, t_log* 
 	return EXIT_SUCCESS;
 }
 
-uint32_t packageSize(t_package package){
-	return package.size + packageHeaderSize;
+uint32_t packageSize(uint32_t size){
+	return size + packageHeaderSize;
 }
+
+char* compress(int code, char* data, uint32_t size, t_log* logger){
+	char* compressPack = (char*) malloc(packageSize(size));
+	if (compressPack){
+		memcpy(compressPack,code, sizeof(uint16_t));
+		memcpy(compressPack, size, sizeof(uint32_t));
+		memcpy(compressPack, data, data);
+		return compressPack;
+	}
+	log_error(logger,"Error al asignar espacio para el packete de salida");
+	return NULL;
 }
-int enviar(int socket,int code,char*data, t_log* logger){
-	t_package package;
-	package.code = code;
-	package.size = sizeof
+
+int enviar(int socket, int code, char* data, uint32_t size, t_log* logger){
+	log_trace(logger,"enviar()");
+	char* package = compress(code, data, size, logger);
+	int sizeOfData = packageSize(size);
+	int totalDataSent = 0;
+	int sent;
+
+	do{
+		sent = send(socket, package, packageSize(size), 0);
+		if (sent< 0){
+			log_error(logger, "Error al enviar: ",strerror(errno));
+			return EXIT_FAILURE;
+		}
+		totalDataSent += sent;
+	}while(totalDataSent < sizeOfData);
+	log_debug(logger, "Error al enviar: ",strerror(errno));
+	return EXIT_SUCCESS;
 }
