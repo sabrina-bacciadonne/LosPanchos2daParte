@@ -1,34 +1,5 @@
 #ifndef PRIMITIVAS_H_
 #define PRIMITIVAS_H_
-typedef u_int32_t t_puntero;
-	typedef u_int32_t t_size;
-	typedef t_puntero t_puntero_instruccion;
-	typedef t_puntero t_descriptor_archivo;
-
-	typedef char t_nombre_variable;
-	typedef int t_valor_variable;
-
-	typedef t_nombre_variable* t_nombre_semaforo;
-	typedef t_nombre_variable* t_nombre_etiqueta;
-	typedef  t_nombre_variable* t_nombre_compartida;
-	typedef  t_nombre_variable* t_direccion_archivo;
-
-	typedef enum {
-		SIN_ERROR,
-		NO_EXISTE_VARIABLE,
-		NO_EXISTE_FUNCION,
-		NO_EXISTE_ETIQUETA,
-		STACK_OVERFLOW,
-		STACK_UNDERFLOW,
-		FIN_PROGRAMA,
-	} STATUS;
-
-	/*typedef struct{
-		bool lectura;
-		bool escritura;
-		bool creacion;
-	} t_banderas;*/
-
 	t_puntero definirVariable(t_nombre_variable identificador_variable);
 	t_puntero obtenerPosicionVariable (t_nombre_variable identificador_variable);
 	t_valor_variable dereferenciar(t_puntero direccion_variable);
@@ -49,7 +20,7 @@ typedef u_int32_t t_puntero;
 	void signal_kernel(t_nombre_semaforo identificador_semaforo);
 	t_puntero reservar_kernel(t_valor_variable espacio);
 	void liberar_kernel(t_puntero puntero);
-	t_descriptor_archivo abrir_kernel(t_direccion_archivo direccion, t_banderas flags);
+//	t_descriptor_archivo abrir_kernel(t_direccion_archivo direccion, t_banderas flags);
 	void borrar_kernel(t_descriptor_archivo direccion);
 	void cerrar_kernel(t_descriptor_archivo descriptor_archivo);
 	void moverCursor_kernel(t_descriptor_archivo descriptor_archivo, t_valor_variable posicion);

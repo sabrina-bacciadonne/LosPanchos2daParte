@@ -12,7 +12,7 @@
  */
 #include "cpu.h"
 #include "primitivas.h"
-#include <parser/parser.h>
+#include "parser/parser.h"
 
 AnSISOP_funciones primitivas = {
 		.AnSISOP_definirVariable		= definirVariable,
@@ -27,7 +27,7 @@ AnSISOP_funciones primitivas = {
 		//.AnSISOP_imprimir				= imprimir,
 		//.AnSISOP_imprimirTexto			= imprimirTexto,
 		//.AnSISOP_entradaSalida			= entradaSalida,
-		.AnSISOP_finalizar				= finalizar,
+		.AnSISOP_finalizar				= finalizar
 
 };
 AnSISOP_kernel primitivas_kernel = {
@@ -35,7 +35,7 @@ AnSISOP_kernel primitivas_kernel = {
 		.AnSISOP_signal					=signal_kernel,
 		.AnSISOP_reservar				=reservar_kernel,
 		.AnSISOP_liberar				=liberar_kernel,
-		.AnSISOP_abrir					=abrir_kernel,
+//		.AnSISOP_abrir					=abrir_kernel,
 		.AnSISOP_borrar					=borrar_kernel,
 		.AnSISOP_cerrar					=cerrar_kernel,
 		.AnSISOP_moverCursor			=moverCursor_kernel,
@@ -43,13 +43,17 @@ AnSISOP_kernel primitivas_kernel = {
 		.AnSISOP_leer					=leer_kernel
 };
 
-int main(int argc, char **argv) {
+int main() {
 
 char* sentencia = 'variables a, b';
 
-analizadorLinea(depurarSentencia(sentencia), &primitivas,&primitivas_kernel);
+analizadorLinea(sentencia, &primitivas,&primitivas_kernel);
 
-char* depurarSentencia(char* sentencia) {
+printf("chau capo");
+
+}
+
+/*char* depurarSentencia(char* sentencia) {
 
 	int i = strlen(sentencia);
 	while (string_ends_with(sentencia, "\n")) {
@@ -57,4 +61,4 @@ char* depurarSentencia(char* sentencia) {
 		sentencia = string_substring_until(sentencia, i);
 	}
 	return sentencia;
-}
+}*/
