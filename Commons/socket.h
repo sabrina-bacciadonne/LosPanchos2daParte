@@ -28,7 +28,9 @@
 
 #define packageHeaderSize sizeof(uint32_t) + sizeof(uint16_t);
 
-enum codigoID {CONSOLA, CPU, KERNEL, MEMORIA, FILESYSTEM};
+#define BACKLOG 40;
+
+enum codigoID {CONSOLA_HSK, CPU_HSK, KERNEL_HSK, MEMORIA_HSK, FILESYSTEM_HSK};
 
 typedef struct {
 	uint16_t code;
@@ -36,8 +38,9 @@ typedef struct {
 	char*	data;
 }t_package;
 
-
-int cargarEstructuras(char* puerto,char* ip, t_log* logger);
+int escuchar(int puerto, int* socket, t_log* logger);
+int acceptar(int* socket,int* newSocket, t_log* logger);
+int cargarSoket(int iPuerto,const char* ip, int* pSocket, t_log* logger);
 int EnviarHandshake (int socket, uint16_t codigoMio,uint16_t codigoOtro, t_log* logger);
 uint32_t packageSize(uint32_t size);
 char* compress(int code, char* data, uint32_t size, t_log* logger);

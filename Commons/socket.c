@@ -7,18 +7,53 @@
 
 #include "socket.h"
 
+int escuchar(int puerto, int* socket, t_log* logger){
+	int listenBacklog = BACKLOG;
+	char* port;
+	if(cargarSoket(puerto, "",  socket, logger)){
+		return EXIT_FAILURE;
+	}
+	port = itoa(puerto);
+	log_info(logger, "Escuchando en el puerto:", port);
+	free(port);
+	if(listen(*socket, listenBacklog) < 0){
+		log_error(logger, "Error en el listen:",strerror(errno));
+		close(*socket);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+}
+
+int acceptar(int* socket,int* newSocket, t_log* logger){
+	struct sockaddr_storage their_addr;
+	socklen_t addrSize;
+	addrSize = sizeof their_addr;
+	*newSocket = accept(*socket, (struct sockaddr *)&their_addr, &addrSize);
+	if(*newSocket < 0){
+		log_error(logger, "Error en el accept:",strerror(errno));
+		close(*socket);
+		return EXIT_FAILURE;
+	}
+	log_info(logger, "Conexion aceptada.");
+	return EXIT_SUCCESS;
+}
+
 /*Funcion que crea el socket para escucha o para conectarse*/
-int cargarEstructuras(char* puerto,char* ip, t_log* logger){
+int cargarSoket(int iPuerto,const char* ip, int* pSocket, t_log* logger){
 	int socketFD;
 	struct addrinfo hints, *servInfo, *p;
 	int rv;
-//	socklen_t addrLen;
-//	char s[INET_ADDRSTRLEN];
+	char* puerto = string_itoa(iPuerto);
 
+	if(!strcmp(puerto,"")){
+		log_error(logger,"Error al convertir el puerto a string.");
+		return EXIT_FAILURE;
+	}
 	memset(&hints,0,sizeof hints);
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_DGRAM;
-	if(string_is_empty(ip)){		// use my IP
+	printf("Is Empty: %d\n",strcmp(ip,""));
+	if(!strcmp(ip,"")){		// use my IP
 		hints.ai_flags = AI_PASSIVE;
 		ip = NULL;
 	}
@@ -56,7 +91,8 @@ int cargarEstructuras(char* puerto,char* ip, t_log* logger){
 		exit(EXIT_FAILURE);
 	}
 	freeaddrinfo(servInfo);
-	return socketFD;
+	*pSocket = socketFD;
+	return EXIT_SUCCESS;
 }
 
 int EnviarHandshake (int socket, uint16_t codigoMio, uint16_t codigoOtro, t_log* logger){
