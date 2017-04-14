@@ -69,6 +69,7 @@ void* cargarConfiguracion(char* path,int configParamAmount,processType configTyp
 		confMemoria->entradasCache =  leerInt(configFile, "ENTRADAS_CACHE", logger);
 		confMemoria->cacheXProc =  leerInt(configFile, "CACHE_X_PROC", logger);
 		confMemoria->retardoMemoria =  leerInt(configFile, "RETARDO_MEMORIA", logger);
+		configParamAmount = 6;
 		return confMemoria;
 	default:
 			return NULL;
