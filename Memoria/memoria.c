@@ -3,6 +3,7 @@
 //
 
 #include "memoria.h"
+
 #include <stdio.h>
 
 void consolaMem_imprimir_encabezado(){
@@ -108,7 +109,7 @@ int validar_archivo_configMemoria(configMemoria* datos_config,t_log* logger) {
 
 void inicializarMemoria(){
 
-	char ** memoria;
+	char** memoria;
 
 	configMemoria datos_config;
 	t_log* logger = log_create("LOG_MEMORIA", "MEMORIA", 1, LOG_LEVEL_DEBUG);
@@ -142,5 +143,5 @@ int main(int argc, char **argv) {
 
 		return 0;
 
-}
+  }
 
