@@ -130,6 +130,12 @@ void inicializarMemoria(){
 	int cant_marcos = datos_config.marcos;
 	memoria = malloc(sizeof(char*)*cant_marcos); //Reservo memoria con cantidad de frames disponibles
 
+
+}
+
+void liberar_memoria(t_log* logger,configMemoria* config) {
+     free(logger);
+     free(config);
 }
 
 
