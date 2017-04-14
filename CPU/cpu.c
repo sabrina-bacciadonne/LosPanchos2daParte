@@ -43,14 +43,30 @@ AnSISOP_kernel primitivas_kernel = {
 		.AnSISOP_leer					=leer_kernel
 };
 
-int main() {
+int main (int argc, char *argv[]) {
+	t_log* logger = log_create("log_kernel", "CPU", 1, LOG_LEVEL_TRACE);
+	processType process = CPU;
+	configCPU* conf = (configCPU*) cargarConfiguracion(argv[1], 4, process, logger);
 
-char* sentencia = 'variables a, b';
+	puts("CPU.");
+	printf("IP_KERNEL: %s\n",conf->ipKernel);
+	printf("IP_MEMORIA: %s\n",conf->ipMemoria);
+	printf("PUERTO_KERNEL: %d\n",conf->puertoKernel);
+	printf("PUERTO_MEMORIA %d\n",conf->puertoMemoria);
 
-analizadorLinea(sentencia, &primitivas,&primitivas_kernel);
+	/*Para cuando ande el parser:
+	char* sentencia = 'variables a, b';
+	analizadorLinea(sentencia, &primitivas,&primitivas_kernel);
+	printf("chau capo");
+	*/
 
-printf("chau capo");
+	liberar_memoria(logger, conf);
+	return EXIT_SUCCESS;
+}
 
+void liberar_memoria(t_log* logger,configCPU* config) {
+	free(logger);
+	free(config);
 }
 
 /*char* depurarSentencia(char* sentencia) {

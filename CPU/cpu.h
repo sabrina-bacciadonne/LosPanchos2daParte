@@ -16,3 +16,7 @@
 	typedef  t_nombre_variable* t_direccion_archivo;
 
 #endif //TP_2017_1C_LOSPANCHOS_CPU_H
+
+#include "../Commons/configuracion.h"
+#include <commons/log.h>
+#include <commons/config.h>
