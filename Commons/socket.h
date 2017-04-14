@@ -37,8 +37,12 @@ typedef struct {
 }t_package;
 
 
-int cargarEstructuras(int puerto,char* ip, t_log* logger);
+int cargarEstructuras(char* puerto,char* ip, t_log* logger);
 int EnviarHandshake (int socket, uint16_t codigoMio,uint16_t codigoOtro, t_log* logger);
-int enviar(int socket,t_package package, t_log* logger);
+uint32_t packageSize(uint32_t size);
+char* compress(int code, char* data, uint32_t size, t_log* logger);
+int enviar(int socket, uint16_t code, char* data, uint32_t size, t_log* logger);
+int recibir(int socket,t_package* mensaje, t_log* logger);
+int recvPkg(int socket, char** buffer, uint32_t size, t_log* logger);
 
 #endif /* SOCKET_H_ */

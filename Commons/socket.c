@@ -7,13 +7,13 @@
 
 #include "socket.h"
 
-
-int cargarEstructuras(int puerto,char* ip, t_log* logger){
-	int socketFD, errorLength;
+/*Funcion que crea el socket para escucha o para conectarse*/
+int cargarEstructuras(char* puerto,char* ip, t_log* logger){
+	int socketFD;
 	struct addrinfo hints, *servInfo, *p;
 	int rv;
-	socklen_t addrLen;
-	char s[INET_ADDRSTRLEN];
+//	socklen_t addrLen;
+//	char s[INET_ADDRSTRLEN];
 
 	memset(&hints,0,sizeof hints);
 	hints.ai_family = AF_INET;
@@ -24,7 +24,6 @@ int cargarEstructuras(int puerto,char* ip, t_log* logger){
 	}
 
 	if ((rv = getaddrinfo(ip, puerto, &hints, &servInfo)) != 0) {
-		errorLength = strlen("getaddrinfo: \n") + ) + 1;
 		char* addrError = string_from_format("getaddrinfo: %s\n", gai_strerror(rv));
 		log_error(logger,addrError);
 		free(addrError);
@@ -60,17 +59,14 @@ int cargarEstructuras(int puerto,char* ip, t_log* logger){
 	return socketFD;
 }
 
-int EnviarHandshake (int socket, uint16_t codigoMio,uint16_t codigoOtro, t_log* logger){
+int EnviarHandshake (int socket, uint16_t codigoMio, uint16_t codigoOtro, t_log* logger){
+	t_package handshakeRcv;
 
-	t_package handshakeMsg;
-	t_package* handshakeRcv;
-	handshakeMsg.code = codigoMio;
-
-	if(enviar(socket,codigoMio,NULL,logger)){
+	if(enviar(socket,codigoMio,NULL,0,logger)){
 		log_error(logger, "Error al enviar el handshake");
 		return EXIT_FAILURE;
 	}
-	if(recibir(socket,&handshakeRcv,logger)){
+	if(recibir(socket, &handshakeRcv, logger)){
 		log_error(logger,"Error al recibir el handshake");
 		return EXIT_FAILURE;
 	}
@@ -87,17 +83,17 @@ uint32_t packageSize(uint32_t size){
 
 char* compress(int code, char* data, uint32_t size, t_log* logger){
 	char* compressPack = (char*) malloc(packageSize(size));
-	if (compressPack){
-		memcpy(compressPack,code, sizeof(uint16_t));
-		memcpy(compressPack, size, sizeof(uint32_t));
-		memcpy(compressPack, data, data);
+	if (compressPack != NULL){
+		memcpy(compressPack, &code, sizeof(uint16_t));
+		memcpy(compressPack + sizeof(uint16_t), &size, sizeof(uint32_t));
+		memcpy(compressPack + packageSize(0), data, size);
 		return compressPack;
 	}
 	log_error(logger,"Error al asignar espacio para el packete de salida");
 	return NULL;
 }
 
-int enviar(int socket, int code, char* data, uint32_t size, t_log* logger){
+int enviar(int socket, uint16_t code, char* data, uint32_t size, t_log* logger){
 	log_trace(logger,"enviar()");
 	char* package = compress(code, data, size, logger);
 	int sizeOfData = packageSize(size);
@@ -113,5 +109,52 @@ int enviar(int socket, int code, char* data, uint32_t size, t_log* logger){
 		totalDataSent += sent;
 	}while(totalDataSent < sizeOfData);
 	log_debug(logger, "Error al enviar: ",strerror(errno));
+	return EXIT_SUCCESS;
+}
+
+int recibir(int socket,t_package* mensaje, t_log* logger){
+	int headerSize = packageHeaderSize;
+	char* buffer;
+	char* dbgMsj;
+	mensaje = (t_package *)malloc(headerSize + sizeof(char *));
+	//Recibo el primer parametro del header.
+	if(recvPkg(socket, &buffer, headerSize, logger)){
+		return EXIT_FAILURE;
+	}
+	//descomprimo el header.
+	memcpy(&(mensaje->code), buffer, sizeof(uint16_t));
+	memcpy(&(mensaje->size), buffer+sizeof(uint16_t), sizeof(uint32_t));
+	dbgMsj = string_from_format("Code:%d\tSize:%d", mensaje->code,mensaje->size);
+	log_debug(logger, dbgMsj);
+	free(dbgMsj);
+	free(buffer);
+	if(recvPkg(socket, &buffer,mensaje->size, logger)){
+		return EXIT_FAILURE;
+	}
+	log_trace(logger, "Data: ", buffer);
+	mensaje->data = buffer;
+
+	return EXIT_SUCCESS;
+}
+
+int recvPkg(int socket, char** buffer, uint32_t size, t_log* logger){
+	int recibido;
+	char* buff = (char*)malloc(sizeof(size));
+	char* errorMsj;
+	recibido = recv(socket, buff, size,0);
+	if(recibido < 0){
+		log_error(logger, "Error al recibir: ",strerror(errno));
+		close(socket);
+		return EXIT_FAILURE;
+	}
+	if(recibido < size){
+		log_error(logger, "El tamanio del mensaje no coincide con el esperado.");
+		errorMsj = string_from_format("Recibido:%d \tEsperado:%d", recibido, size);
+		log_error(logger, errorMsj);
+		free(errorMsj);
+		close(socket);
+		return EXIT_FAILURE;
+	}
+	*(buffer) = buff;
 	return EXIT_SUCCESS;
 }
