@@ -19,7 +19,7 @@ void consolaMem_imprimir_menu(){
 	printf("4) Size\n");
 }
 
-int validar_archivo_config(configMemoria* datos_config,t_log* logger) {
+int validar_archivo_configMemoria(configMemoria* datos_config,t_log* logger) {
 
 	t_config* config;
 
@@ -38,8 +38,7 @@ int validar_archivo_config(configMemoria* datos_config,t_log* logger) {
 	}
 
 	if (config_has_property(config, "PUERTO")) {
-		datos_config->puerto = config_get_string_value(config, "PUERTO");
-		validar_ip(datos_config->puerto,logger);
+		datos_config->puerto = config_get_int_value(config, "PUERTO");
 	} else {
 		log_error(logger,
 				"No se encuentra el parametro puerto en el archivo.");
@@ -55,40 +54,70 @@ int validar_archivo_config(configMemoria* datos_config,t_log* logger) {
 		exit(EXIT_FAILURE);
 	}
 
-//	if (config_has_property(config, "MARCO_SIZE")) {
-//			datos_config->marcoSize = config_get_int_value(config,
-//					"MARCO_SIZE");
-//		} else {
-//			log_error(logger,
-//					"");
-//			exit(EXIT_FAILURE);
-//		}
-//	return 0;
+	if (config_has_property(config, "MARCO_SIZE")) {
+			datos_config->marcoSize = config_get_int_value(config,
+					"MARCO_SIZE");
+		} else {
+			log_error(logger,
+					"No se encuentra el valor del tamaño de marco del sistema");
+			exit(EXIT_FAILURE);
+		}
+	if (config_has_property(config,"ENTRADAS_CACHE")) {
+				datos_config->entradasCache = config_get_int_value(config,
+						"ENTRADAS_CACHE");
+	    if (datos_config->entradasCache == 0) {
+				log_error(logger,
+						"La cache se encuentra deshabilitada");
+		  }
+	} else {
+			 log_error(logger,
+					   "No se encuentra la cantidad disponible de entradas en la cache");
+			 exit(EXIT_FAILURE);
+		}
 
-//}
+	if (config_has_property(config, "CACHE_X_PROC")) {
+						datos_config->cacheXProc = config_get_int_value(config,
+								"CACHE_X_PROC");
+		} else {
+			 log_error(logger,
+								"No se encuentra la cantidad máxima de entradas de la cache asignables a cada programa");
+				exit(EXIT_FAILURE);
+				}
 
-	//TERMINAR DE VALIDAR ARCH CONFIG
+	if (config_has_property(config, "RETARDO_MEMORIA")) {
+							datos_config->retardoMemoria = config_get_int_value(config,
+									"RETARDO_MEMORIA");
+			} else {
+				 log_error(logger,
+									"No se encuentra la cantidad de milisegundos que el sistema debe esperar");
+					exit(EXIT_FAILURE);
+					}
+	return 0;
+
+}
+
 
 int main(int argc, char **argv) {
 
 	puts("Memoria\n");
-		int res;
+
 		configMemoria datos_config;
 		t_log* logger = log_create("LOG_MEMORIA", "MEMORIA", 1, LOG_LEVEL_DEBUG);
 
-		res = validar_archivo_config(&datos_config,logger);
+		validar_archivo_configMemoria(&datos_config,logger);
 		consolaMem_imprimir_encabezado();
 		consolaMem_imprimir_menu();
 
-		printf("%d",datos_config.puerto);
-		printf("%d",datos_config.marcos);
-		printf("%d",datos_config.marcoSize);
-		printf("%d",datos_config.marcos);
-		printf("%d",datos_config.entradasCache);
-		printf("%d",datos_config.cacheXProc);
-		printf("%d",datos_config.retardoMemoria);
+		printf("\n");
+		printf("Puerto = %d\n",datos_config.puerto);
+		printf("Marcos = %d\n",datos_config.marcos);
+		printf("Marcos_Sice = %d\n",datos_config.marcoSize);
+		printf("Marcos = %d\n",datos_config.marcos);
+		printf("Entradas_Cache = %d\n",datos_config.entradasCache);
+		printf("Cache_X_Proc = %d\n",datos_config.cacheXProc);
+		printf("Retardo_Memoria = %d\n",datos_config.retardoMemoria);
 
-		//en datos_config están los datos para conectarse al kernel!!!!
+
 
 		return 0;
 
