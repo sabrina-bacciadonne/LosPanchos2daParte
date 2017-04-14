@@ -48,6 +48,10 @@ int validar_archivo_configMemoria(configMemoria* datos_config,t_log* logger) {
 	if (config_has_property(config, "MARCOS")) {
 		datos_config->marcos = config_get_int_value(config,
 				"MARCOS");
+		if (datos_config->marcos > 500) {
+				log_error(logger,"No se puede ampliar la memoria");
+				exit(EXIT_FAILURE);
+					  }
 	} else {
 		log_error(logger,
 				"No se encuentra el número de marcos disponibles en el sistema");
@@ -57,6 +61,12 @@ int validar_archivo_configMemoria(configMemoria* datos_config,t_log* logger) {
 	if (config_has_property(config, "MARCO_SIZE")) {
 			datos_config->marcoSize = config_get_int_value(config,
 					"MARCO_SIZE");
+
+		    if (datos_config->marcoSize > 256) {
+		    	log_error(logger,"No se puede ampliar la memoria");
+		    	exit(EXIT_FAILURE);
+			  }
+
 		} else {
 			log_error(logger,
 					"No se encuentra el valor del tamaño de marco del sistema");
@@ -96,27 +106,38 @@ int validar_archivo_configMemoria(configMemoria* datos_config,t_log* logger) {
 
 }
 
+void inicializarMemoria(){
+
+	char ** memoria;
+
+	configMemoria datos_config;
+	t_log* logger = log_create("LOG_MEMORIA", "MEMORIA", 1, LOG_LEVEL_DEBUG);
+
+	validar_archivo_configMemoria(&datos_config,logger);
+	consolaMem_imprimir_encabezado();
+	consolaMem_imprimir_menu();
+
+	printf("\n");
+	printf("Puerto = %d\n",datos_config.puerto);
+	printf("Marco_Size = %d\n",datos_config.marcoSize);
+	printf("Marcos = %d\n",datos_config.marcos);
+	printf("Entradas_Cache = %d\n",datos_config.entradasCache);
+	printf("Cache_X_Proc = %d\n",datos_config.cacheXProc);
+	printf("Retardo_Memoria = %d\n",datos_config.retardoMemoria);
+
+
+	int cant_marcos = datos_config.marcos;
+	memoria = malloc(sizeof(char*)*cant_marcos); //Reservo memoria con cantidad de frames disponibles
+
+}
+
 
 int main(int argc, char **argv) {
 
 	puts("Memoria\n");
 
-		configMemoria datos_config;
-		t_log* logger = log_create("LOG_MEMORIA", "MEMORIA", 1, LOG_LEVEL_DEBUG);
 
-		validar_archivo_configMemoria(&datos_config,logger);
-		consolaMem_imprimir_encabezado();
-		consolaMem_imprimir_menu();
-
-		printf("\n");
-		printf("Puerto = %d\n",datos_config.puerto);
-		printf("Marcos = %d\n",datos_config.marcos);
-		printf("Marcos_Sice = %d\n",datos_config.marcoSize);
-		printf("Marcos = %d\n",datos_config.marcos);
-		printf("Entradas_Cache = %d\n",datos_config.entradasCache);
-		printf("Cache_X_Proc = %d\n",datos_config.cacheXProc);
-		printf("Retardo_Memoria = %d\n",datos_config.retardoMemoria);
-
+        inicializarMemoria();
 
 
 		return 0;
