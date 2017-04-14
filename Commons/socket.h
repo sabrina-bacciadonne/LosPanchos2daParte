@@ -39,7 +39,7 @@ typedef struct {
 }t_package;
 
 int escuchar(int puerto, int* socket, t_log* logger);
-int acceptar(int* socket,int* newSocket, t_log* logger);
+int aceptar(int* socket,int* newSocket, t_log* logger);
 int cargarSoket(int iPuerto,const char* ip, int* pSocket, t_log* logger);
 int EnviarHandshake (int socket, uint16_t codigoMio,uint16_t codigoOtro, t_log* logger);
 uint32_t packageSize(uint32_t size);

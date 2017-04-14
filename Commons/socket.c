@@ -13,24 +13,25 @@ int escuchar(int puerto, int* socket, t_log* logger){
 	if(cargarSoket(puerto, "",  socket, logger)){
 		return EXIT_FAILURE;
 	}
-	port = itoa(puerto);
-	log_info(logger, "Escuchando en el puerto:", port);
+	log_trace(logger,"socket - SocketFD: %d",*socket);
+	port = string_itoa(puerto);
+	log_info(logger, "Escuchando en el puerto: %s", port);
 	free(port);
 	if(listen(*socket, listenBacklog) < 0){
-		log_error(logger, "Error en el listen:",strerror(errno));
+		log_error(logger, "Error en el listen: %s",strerror(errno));
 		close(*socket);
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
 }
 
-int acceptar(int* socket,int* newSocket, t_log* logger){
+int aceptar(int* socket,int* newSocket, t_log* logger){
 	struct sockaddr_storage their_addr;
 	socklen_t addrSize;
 	addrSize = sizeof their_addr;
 	*newSocket = accept(*socket, (struct sockaddr *)&their_addr, &addrSize);
 	if(*newSocket < 0){
-		log_error(logger, "Error en el accept:",strerror(errno));
+		log_error(logger, "Error en el accept: %s",strerror(errno));
 		close(*socket);
 		return EXIT_FAILURE;
 	}
@@ -51,47 +52,46 @@ int cargarSoket(int iPuerto,const char* ip, int* pSocket, t_log* logger){
 	}
 	memset(&hints,0,sizeof hints);
 	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_DGRAM;
-	printf("Is Empty: %d\n",strcmp(ip,""));
+	hints.ai_socktype = SOCK_STREAM;
 	if(!strcmp(ip,"")){		// use my IP
 		hints.ai_flags = AI_PASSIVE;
 		ip = NULL;
 	}
 
 	if ((rv = getaddrinfo(ip, puerto, &hints, &servInfo)) != 0) {
-		char* addrError = string_from_format("getaddrinfo: %s\n", gai_strerror(rv));
-		log_error(logger,addrError);
-		free(addrError);
+//		char* addrError = string_from_format("getaddrinfo: %s\n", gai_strerror(rv));
+		log_error(logger,"getaddrinfo:%s", gai_strerror(rv) );
+//		free(addrError);
 		return EXIT_FAILURE;
 	}
 	for(p = servInfo; p != NULL; p = p->ai_next) {
 		if ((socketFD = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
-			log_warning(logger, "Socket error:",strerror(errno));
+			log_warning(logger, "Socket error: %s",strerror(errno));
 			continue;
 		}
 		if(ip == NULL){
 			if(bind(socketFD, p->ai_addr, p->ai_addrlen) == -1) {
 				close(socketFD);
-				log_warning(logger, "Bind error:",strerror(errno));
+				log_warning(logger, "Bind error: %s",strerror(errno));
 				continue;
 			}
 		}
 		else{
 			if (connect(socketFD, p->ai_addr, p->ai_addrlen) == -1) {
 				close(socketFD);
-				log_warning(logger, "Connect error:",strerror(errno));
+				log_warning(logger, "Connect error: %s",strerror(errno));
 				continue;
 			}
 		}
 		break;
 	}
+	freeaddrinfo(servInfo);
 	if(p==NULL){
-		log_error(logger, "No Socket could be created");
-		freeaddrinfo(servInfo);
+		log_error(logger, "No se pudo crear el socket.");
 		exit(EXIT_FAILURE);
 	}
-	freeaddrinfo(servInfo);
 	*pSocket = socketFD;
+	log_trace(logger,"socket - SocketFD: %d",socketFD);
 	return EXIT_SUCCESS;
 }
 
