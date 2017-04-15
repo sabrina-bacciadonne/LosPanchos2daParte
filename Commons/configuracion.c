@@ -16,7 +16,7 @@ void* cargarConfiguracion(char* path,int configParamAmount,processType configTyp
 	configMemoria* confMemoria;
 
 	configFile = config_create(path);
-	if (!configFile) {
+	if (!configFile || configFile->properties->elements_amount == 0) {
 		log_error(logger, "No se encontro el archivo de configuracion.\n");
 		exit(EXIT_FAILURE);
 	}
@@ -43,7 +43,6 @@ void* cargarConfiguracion(char* path,int configParamAmount,processType configTyp
 		confFileSystem = (configFileSystem*)malloc(sizeof(configFileSystem));
 		confFileSystem->puerto = leerPuerto(configFile, "PUERTO", logger);
 		confFileSystem->puntoMontaje = leerString(configFile, "PUNTO_MONTAJE", logger);
-		//TODO: VALIDAR EL PUNTOMONTAJE CON SINTAXIS DE DIRECTORIO LINUX
 		return confFileSystem;
 	case KERNEL:
 		confKernel = (configKernel*)malloc(sizeof(configKernel));
@@ -70,6 +69,7 @@ void* cargarConfiguracion(char* path,int configParamAmount,processType configTyp
 		confMemoria->entradasCache =  leerInt(configFile, "ENTRADAS_CACHE", logger);
 		confMemoria->cacheXProc =  leerInt(configFile, "CACHE_X_PROC", logger);
 		confMemoria->retardoMemoria =  leerInt(configFile, "RETARDO_MEMORIA", logger);
+		configParamAmount = 6;
 		return confMemoria;
 	default:
 			return NULL;
@@ -83,7 +83,7 @@ char* leerString (void* configFile, char* parametro, t_log* logger){
 		string = config_get_string_value(configFile, parametro);
 		//TODO: Valida que no sea vacio
 	} else {
-		log_error(logger, "No se encuentra el parametro  en el archivo de config.");//TODO generar el string correcto para el error
+		log_error(logger, "No se encuentra el parametro en el archivo de config.");//TODO generar el string correcto para el error
 		exit(EXIT_FAILURE);
 	}
 	return string;
