@@ -189,6 +189,9 @@ int recibir(int socket,t_package* mensaje, t_log* logger){
 	if(recvPkg(socket, &buffer,mensaje->size, logger)){
 		return EXIT_FAILURE;
 	}
+	mensaje->data = (char*)malloc(mensaje->size + 1);//+1 por el \0.
+	memcpy(mensaje->data,buffer+headerSize,mensaje->size);
+	(mensaje->data)[mensaje->size] = '\0';
 	log_trace(logger, "Data: %s", buffer);
 	mensaje->data = buffer;
 

@@ -30,7 +30,7 @@
 
 #define BACKLOG 40;
 
-enum codigoID {CONSOLA_HSK = 1894, CPU_HSK, KERNEL_HSK, MEMORIA_HSK, FILESYSTEM_HSK};
+enum codigoID {CONSOLA_HSK = 1894, CPU_HSK, KERNEL_HSK, MEMORIA_HSK, FILESYSTEM_HSK, HOLA};
 
 typedef struct {
 	uint16_t code;
