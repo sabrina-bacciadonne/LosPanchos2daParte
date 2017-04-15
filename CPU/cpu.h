@@ -20,6 +20,8 @@ typedef t_nombre_variable* t_nombre_etiqueta;
 typedef  t_nombre_variable* t_nombre_compartida;
 typedef  t_nombre_variable* t_direccion_archivo;
 
+char* depurarSentencia(char* sentencia);
+
 #endif //TP_2017_1C_LOSPANCHOS_CPU_H
 
 
