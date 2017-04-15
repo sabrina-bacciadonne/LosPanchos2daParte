@@ -95,7 +95,7 @@ int cargarSoket(int iPuerto,const char* ip, int* pSocket, t_log* logger){
 	return EXIT_SUCCESS;
 }
 
-int EnviarHandshake (int socket, uint16_t codigoMio, uint16_t codigoOtro, t_log* logger){
+int enviarHandshake (int socket, uint16_t codigoMio, uint16_t codigoOtro, t_log* logger){
 	t_package handshakeRcv;
 
 	if(enviar(socket,codigoMio,NULL,0,logger)){
@@ -110,6 +110,28 @@ int EnviarHandshake (int socket, uint16_t codigoMio, uint16_t codigoOtro, t_log*
 		log_warning(logger, "Codigo de handshake incorrecto");
 		return EXIT_FAILURE;
 	}
+	return EXIT_SUCCESS;
+}
+
+int recibirHandshake (int socket, uint16_t codigoMio, uint16_t codigoOtro, t_log* logger){
+	t_package handshakeRcv;
+
+	if(recibir(socket, &handshakeRcv, logger)){
+		log_error(logger,"Error al recibir el handshake.");
+		close(socket);
+		return EXIT_FAILURE;
+	}
+	if(handshakeRcv.code != codigoOtro){
+		log_error(logger, "Codigo de handshake incorrecto.Recibido: %d.\tEsperado:%d",handshakeRcv.code, codigoOtro );
+		close(socket);
+		return EXIT_FAILURE;
+	}
+	if(enviar(socket,codigoMio,NULL,0,logger)){
+		log_error(logger, "Error al enviar el handshake");
+		return EXIT_FAILURE;
+	}
+
+
 	return EXIT_SUCCESS;
 }
 
@@ -137,22 +159,21 @@ int enviar(int socket, uint16_t code, char* data, uint32_t size, t_log* logger){
 	int sent;
 
 	do{
-		sent = send(socket, package, packageSize(size), 0);
-		if (sent< 0){
-			log_error(logger, "Error al enviar: ",strerror(errno));
+		sent = send(socket, package, packageSize(size) - totalDataSent, 0);
+		if (sent < 0){
+			log_error(logger, "Error al enviar: %s",strerror(errno));
 			return EXIT_FAILURE;
 		}
 		totalDataSent += sent;
 	}while(totalDataSent < sizeOfData);
-	log_debug(logger, "Error al enviar: ",strerror(errno));
+	log_debug(logger, "send: %s",strerror(errno));
+	log_trace(logger, "Codigo:%d\tSize:%d",code, size);
 	return EXIT_SUCCESS;
 }
 
 int recibir(int socket,t_package* mensaje, t_log* logger){
 	int headerSize = packageHeaderSize;
 	char* buffer;
-	char* dbgMsj;
-	mensaje = (t_package *)malloc(headerSize + sizeof(char *));
 	//Recibo el primer parametro del header.
 	if(recvPkg(socket, &buffer, headerSize, logger)){
 		return EXIT_FAILURE;
@@ -160,14 +181,15 @@ int recibir(int socket,t_package* mensaje, t_log* logger){
 	//descomprimo el header.
 	memcpy(&(mensaje->code), buffer, sizeof(uint16_t));
 	memcpy(&(mensaje->size), buffer+sizeof(uint16_t), sizeof(uint32_t));
-	dbgMsj = string_from_format("Code:%d\tSize:%d", mensaje->code,mensaje->size);
-	log_debug(logger, dbgMsj);
-	free(dbgMsj);
+	log_debug(logger, "Code:%d\tSize:%d", mensaje->code,mensaje->size);
 	free(buffer);
+	if(!mensaje->size){
+		return EXIT_SUCCESS;
+	}
 	if(recvPkg(socket, &buffer,mensaje->size, logger)){
 		return EXIT_FAILURE;
 	}
-	log_trace(logger, "Data: ", buffer);
+	log_trace(logger, "Data: %s", buffer);
 	mensaje->data = buffer;
 
 	return EXIT_SUCCESS;
@@ -177,17 +199,20 @@ int recvPkg(int socket, char** buffer, uint32_t size, t_log* logger){
 	int recibido;
 	char* buff = (char*)malloc(sizeof(size));
 	char* errorMsj;
+	if(size < 1){
+		return EXIT_SUCCESS;
+	}
 	recibido = recv(socket, buff, size,0);
 	if(recibido < 0){
-		log_error(logger, "Error al recibir: ",strerror(errno));
+		log_error(logger, "Error al recibir: %s",strerror(errno));
 		close(socket);
 		return EXIT_FAILURE;
 	}
 	if(recibido < size){
 		log_error(logger, "El tamanio del mensaje no coincide con el esperado.");
-		errorMsj = string_from_format("Recibido:%d \tEsperado:%d", recibido, size);
-		log_error(logger, errorMsj);
-		free(errorMsj);
+//		errorMsj = string_from_format("Recibido:%d \tEsperado:%d", recibido, size);
+		log_error(logger, "Recibido:%d \tEsperado:%d", recibido, size);
+//		free(errorMsj);
 		close(socket);
 		return EXIT_FAILURE;
 	}
