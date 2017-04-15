@@ -7,8 +7,7 @@
 
 int main (int argc, char *argv[]) {
 	t_log* logger = log_create("log_kernel", "KERNEL", 1, LOG_LEVEL_TRACE);
-	processType process = KERNEL;
-	configKernel* conf = (configKernel*) cargarConfiguracion(argv[1], 14, process, logger);
+	configKernel* conf = (configKernel*) cargarConfiguracion(argv[1], 14, KERNEL, logger);
 
 	puts("Kernel.");
 	printf("ALGORITMO: %s\n",conf->algoritmo);

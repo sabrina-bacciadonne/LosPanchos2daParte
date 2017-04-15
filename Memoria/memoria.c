@@ -31,8 +31,7 @@
 
 int main () {
 	t_log* logger = log_create("log_memoria", "MEMORIA", 1, LOG_LEVEL_TRACE);
-	processType process = MEMORIA;
-	configMemoria* conf = (configMemoria*) cargarConfiguracion( "./config", 7, process, logger);
+	configMemoria* conf = (configMemoria*) cargarConfiguracion( "./config", 7, MEMORIA, logger);
 
 	consolaMem_imprimir_encabezado();
 	consolaMem_imprimir_menu();

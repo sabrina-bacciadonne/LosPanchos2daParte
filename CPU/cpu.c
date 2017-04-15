@@ -46,7 +46,7 @@ AnSISOP_kernel primitivas_kernel = {
 int main (int argc, char *argv[]) {
 	t_log* logger = log_create("log_kernel", "CPU", 1, LOG_LEVEL_TRACE);
 	processType process = CPU;
-	configCPU* conf = (configCPU*) cargarConfiguracion(argv[1], 4, process, logger);
+	configCPU* conf = (configCPU*) cargarConfiguracion(argv[1], 4, CPU, logger);
 
 	puts("CPU.");
 	printf("IP_KERNEL: %s\n",conf->ipKernel);

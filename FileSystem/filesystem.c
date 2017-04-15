@@ -7,8 +7,7 @@
 
 int main (int argc, char *argv[]) {
 	t_log* logger = log_create("log_kernel", "FILESYSTEM", 1, LOG_LEVEL_TRACE);
-	processType process = FILESYSTEM;
-	configFileSystem* conf = (configFileSystem*) cargarConfiguracion(argv[1], 2, process, logger);
+	configFileSystem* conf = (configFileSystem*) cargarConfiguracion(argv[1], 2, FILESYSTEM, logger);
 
 	puts("FileSystem.");
 	printf("PUERTO: %d\n",conf->puerto);

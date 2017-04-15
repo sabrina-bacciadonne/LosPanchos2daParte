@@ -7,9 +7,7 @@
 
 int main (int argc, char *argv[]) {
 	t_log* logger = log_create("log_consola", "CONSOLA", 1, LOG_LEVEL_TRACE);
-	processType process = CONSOLA;
-
-	configConsole* conf = (configConsole*) cargarConfiguracion(argv[1], 2, process, logger);
+	configConsole* conf = (configConsole*) cargarConfiguracion(argv[1], 2, CONSOLA, logger);
 
 	puts("Consola.");
 	printf("IP_KERNEL: %s\n",conf->ip);
