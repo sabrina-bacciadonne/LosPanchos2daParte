@@ -7,10 +7,11 @@
 
 
 #include "../Commons/configuracion.h"
+#include "../Commons/socket.h"
 #include <commons/log.h>
 #include <commons/config.h>
 
 
-void liberar_memoria(t_log* logger,configKernel* config);
+void liberar_memoria(t_log* logger, configKernel* config);
 
 #endif //TP_2017_1C_LOSPANCHOS_KERNEL_H

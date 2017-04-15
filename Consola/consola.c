@@ -3,15 +3,35 @@
 //
 
 #include "consola.h"
-#include <stdio.h>
+
 
 int main (int argc, char *argv[]) {
 	t_log* logger = log_create("log_consola", "CONSOLA", 1, LOG_LEVEL_TRACE);
-	configConsole* conf = (configConsole*) cargarConfiguracion(argv[1], 2, CONSOLA, logger);
+	configConsole* conf = (configConsole*) cargarConfiguracion("./config", 2, CONSOLA, logger);
+	int socketKernel;
 
-	puts("Consola.");
+	consola_imprimir_encabezado();
 	printf("IP_KERNEL: %s\n",conf->ip);
 	printf("PUERTO KERNEL: %d\n",conf->puerto);
+
+	//Me conecto Al Kernel
+	if(cargarSoket(conf->puerto, conf->ip, &socketKernel, logger)){
+		//ERROR
+	}
+	//Hago el handshake con el Kernel.
+	if(enviarHandshake(socketKernel, CONSOLA_HSK, KERNEL_HSK,logger)){
+		//ERROR
+	}
+	while(1){
+//		consola_imprimir_menu();
+		printf("Ingrese una tecla para enviar \"HOLA!\" al Kernel.\n");
+		getchar();
+		if(enviar(socketKernel,HOLA,"HOLA!",strlen("HOLA!"),logger)){
+			//ERROR
+			close(socketKernel);
+			return EXIT_FAILURE;
+		}
+	}
 
 	liberar_memoria(logger, conf);
 	return EXIT_SUCCESS;
