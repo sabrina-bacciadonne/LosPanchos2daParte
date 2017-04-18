@@ -53,11 +53,18 @@ int main (int argc, char *argv[]) {
 	printf("IP_MEMORIA: %s\n",conf->ipMemoria);
 	printf("PUERTO_KERNEL: %d\n",conf->puertoKernel);
 	printf("PUERTO_MEMORIA %d\n",conf->puertoMemoria);
+
+
+	imprimirConsola(CPU);
+
+
 	/*Para cuando ande el parser:
 	char* sentencia = 'variables a, b';
 	analizadorLinea(sentencia, &primitivas,&primitivas_kernel);
 	printf("chau capo");
 	*/
+
+
 
 	if(cargarSoket(conf->puertoKernel, conf->ipKernel, &socketKernel, logger)){
 		//ERROR

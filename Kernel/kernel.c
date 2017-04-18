@@ -29,6 +29,8 @@ int main (int argc, char *argv[]) {
 	printf("STACK_SIZE: %d\n",conf->stackSize);
 
 
+	imprimirConsola(KERNEL);
+
 	if(cargarSoket(conf->puertoMemoria, conf->ipMemoria, &socketMemoria, logger)){
 		//ERROR
 		return EXIT_FAILURE;

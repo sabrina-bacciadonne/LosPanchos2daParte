@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <regex.h>
 #include <string.h>
+#include "commons.h"
+
 
 #define PUERTO_MAX 1024
 
@@ -61,8 +63,6 @@ typedef struct {
 	int puertoMemoria;
 	char* ipMemoria;
 }configCPU;
-
-typedef enum {CONSOLA, CPU, FILESYSTEM, KERNEL, MEMORIA} processType;
 
 void* cargarConfiguracion (char* path,int configParamAmount,processType configType, t_log* logger);
 char* leerString (void* configFile, char* parametro, t_log* logger);

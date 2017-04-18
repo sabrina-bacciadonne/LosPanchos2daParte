@@ -4,19 +4,6 @@
 
 #include "memoria.h"
 
-  void consolaMem_imprimir_encabezado(){
-     printf("**** BIENVENIDO A LA CONSOLA MEMORIA****\n");
-     printf("\n");
-  }
-  void consolaMem_imprimir_menu(){
-     printf("Por favor seleccione la opcion correspondiente:\n");
-     printf("\n");
-     printf("1) Retardo\n");
-     printf("2) Dump\n");
-     printf("3) Flush\n");
-     printf("4) Size\n");
-  }
-
   void liberar_memoria(t_log* logger,configMemoria* config) {
   	free(logger);
   	free(config);
@@ -30,7 +17,6 @@ int main () {
 	uint16_t codigoHandshake;
 	t_package pkg;
 
-	consolaMem_imprimir_encabezado();
 	printf("PUERTO: %d\n",conf->puerto);
 	printf("MARCOS: %d\n",conf->marcos);
 	printf("MARCOS SIZE: %d\n",conf->marcoSize);
@@ -39,7 +25,7 @@ int main () {
 	printf("RETARDO MEMORIA: %d\n",conf->retardoMemoria);
 	puts("\n");
 
-//	consolaMem_imprimir_menu();
+	imprimirConsola(MEMORIA);
 
 
 	if(escuchar(conf->puerto, &socketEscucha, logger)){

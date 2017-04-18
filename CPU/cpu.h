@@ -3,6 +3,7 @@
 
 #include "../Commons/configuracion.h"
 #include "../Commons/socket.h"
+#include "../Commons/console.h"
 #include <commons/log.h>
 #include <commons/config.h>
 #include <sys/types.h>
