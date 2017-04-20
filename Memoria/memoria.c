@@ -5,6 +5,7 @@
 #include "memoria.h"
 
 #include <stdio.h>
+#include <unistd.h>
 
 void consolaMem_imprimir_encabezado(){
 	printf("**** BIENVENIDO A LA CONSOLA MEMORIA****\n");
@@ -133,16 +134,26 @@ void inicializarMemoria(){
 
 }
 
-void liberar_memoria(t_log* logger,configMemoria* config) {
+ void liberar_memoria(t_log* logger,configMemoria* config) {
      free(logger);
      free(config);
-}
+ }
 
+ //Espera
+
+ void sleepAccesoMemoria(){
+	t_log* logger;
+	configMemoria datos_config;
+
+	log_info(logger, "Retardo de %d segundos.", datos_config.retardoMemoria);
+    usleep(datos_config.retardoMemoria);
+ }
 
 int main(int argc, char **argv) {
 
-	puts("Memoria\n");
+	configMemoria datos_config;
 
+	puts("Memoria\n");
 
         inicializarMemoria();
 
