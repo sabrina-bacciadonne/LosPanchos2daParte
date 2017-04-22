@@ -14,10 +14,10 @@ int imprimirConsola(processType proceso){
 			printf("******* MENU PRINCIPAL - CONSOLA *******\n");
 			printf("\n");
 			printf("\n");
-			printf("1) Iniciar programa\n");
-			printf("2) Finalizar programa\n");
-			printf("3) Desconectar consola\n");
-			printf("4) Limpiar mensajes\n");
+			printf("A) Iniciar programa\n");
+			printf("B) Finalizar programa\n");
+			printf("C) Desconectar consola\n");
+			printf("D) Limpiar mensajes\n");
 			printf("\n");
 			printf("Por favor seleccione la opcion correspondiente: ");
 			break;
@@ -36,10 +36,10 @@ int imprimirConsola(processType proceso){
 			printf("******* MENU PRINCIPAL - FILESYSTEM *******\n");
 			printf("\n");
 			printf("\n");
-			printf("1) Iniciar programa	\n");
-			printf("2) Finalizar programa\n");
-			printf("3) Desconectar	consola\n");
-			printf("4) Limpiar mensajes	\n");
+			printf("A) Iniciar programa	\n");
+			printf("B) Finalizar programa\n");
+			printf("C) Desconectar	consola\n");
+			printf("D) Limpiar mensajes	\n");
 			printf("\n");
 			printf("Por favor seleccione la opcion correspondiente: ");
 			break;
@@ -47,20 +47,20 @@ int imprimirConsola(processType proceso){
 			printf("******* MENU PRINCIPAL - KERNEL *******\n");
 			printf("\n");
 			printf("\n");
-			printf("1) Imprimir procesos del sistema\n");
-			printf("2) Imprimir procesos del sistema en un determinado estado\n");
-			printf("3) Cantidad de rafagas para un proceso\n");
-			printf("4) Cantidad de operaciones privilegiadas para un proceso\n");
-			printf("5) Imprimir tabla de archivos abiertos para un proceso\n");
-			printf("6) Cantidad de paginas de Heap utilizadas para un proceso\n");
-			printf("7) Cantidad de acciones alocar para un proceso\n");
-			printf("8) Cantidad de acciones liberar para un proceso\n");
-			printf("9) Cantidad de syscall ejecutadas para un proceso\n");
-			printf("10) Cantidad de paginas de Heap utilizadas para un proceso\n");
-			printf("11) Imprimir tabla global de archivos\n");
-			printf("12) Modificar grado de multiprogramacion del sistema\n");
-			printf("13) Finalizar un proceso\n");
-			printf("14) Detener la planificacion del sistema\n");
+			printf("A) Imprimir procesos del sistema\n");
+			printf("B) Imprimir procesos del sistema en un determinado estado\n");
+			printf("C) Cantidad de rafagas para un proceso\n");
+			printf("D) Cantidad de operaciones privilegiadas para un proceso\n");
+			printf("E) Imprimir tabla de archivos abiertos para un proceso\n");
+			printf("F) Cantidad de paginas de Heap utilizadas para un proceso\n");
+			printf("G) Cantidad de acciones alocar para un proceso\n");
+			printf("H) Cantidad de acciones liberar para un proceso\n");
+			printf("J) Cantidad de syscall ejecutadas para un proceso\n");
+			printf("K) Cantidad de paginas de Heap utilizadas para un proceso\n");
+			printf("L) Imprimir tabla global de archivos\n");
+			printf("M) Modificar grado de multiprogramacion del sistema\n");
+			printf("N) Finalizar un proceso\n");
+			printf("O) Detener la planificacion del sistema\n");
 			printf("\n");
 			printf("Por favor seleccione la opcion correspondiente: ");
 			break;
@@ -68,10 +68,10 @@ int imprimirConsola(processType proceso){
 			printf("******* MENU PRINCIPAL - MEMORIA *******\n");
 			printf("\n");
 			printf("\n");
-			printf("1) Modificar retardo \n");
-			printf("2) Dump\n");
-			printf("3) Flush\n");
-			printf("4) Size\n");
+			printf("A) Modificar retardo \n");
+			printf("B) Dump\n");
+			printf("C) Flush\n");
+			printf("D) Size\n");
 			printf("\n");
 			printf("Por favor seleccione la opcion correspondiente: ");
 			break;
@@ -81,11 +81,6 @@ int imprimirConsola(processType proceso){
 		}
 
 	return 1;
-}
-
-void reconocerComando(processType proceso) {
-	char opcion = getchar();
-
 }
 
 

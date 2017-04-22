@@ -17,9 +17,10 @@ typedef struct {
 	char* parametro;
 }t_comando;
 
+typedef enum {INIT_PROG,FIN_PROG,DISC_CONSOLE,CLEAR} comandosConsola;
+
 
 
 int imprimirConsola(processType proceso);
-void reconocerComando(processType proceso);
 
 #endif /* CONSOLE_H_ */

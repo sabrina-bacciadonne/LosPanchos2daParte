@@ -10,6 +10,7 @@
 #include <commons/log.h>
 #include <commons/config.h>
 #include <stdio.h>
+#include "tad_consola.h"
 
 
 

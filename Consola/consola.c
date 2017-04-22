@@ -13,7 +13,7 @@ int main (int argc, char *argv[]) {
 	printf("IP_KERNEL: %s\n",conf->ip);
 	printf("PUERTO KERNEL: %d\n",conf->puerto);
 	imprimirConsola(CONSOLA);
-	reconocerComando(CONSOLA);
+	consola_reconocerComando();
 
 //	//Me conecto Al Kernel
 //	if(cargarSoket(conf->puerto, conf->ip, &socketKernel, logger)){
