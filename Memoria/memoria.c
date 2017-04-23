@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
+
 void consolaMem_imprimir_encabezado(){
 	printf("**** BIENVENIDO A LA CONSOLA MEMORIA****\n");
 	printf("\n");
@@ -19,6 +20,7 @@ void consolaMem_imprimir_menu(){
 	printf("2) Dump\n");
 	printf("3) Flush\n");
 	printf("4) Size\n");
+	printf("\n");
 }
 
 int validar_archivo_configMemoria(configMemoria* datos_config,t_log* logger) {
@@ -108,18 +110,31 @@ int validar_archivo_configMemoria(configMemoria* datos_config,t_log* logger) {
 
 }
 
+
+void liberar_memoria(t_log* logger,configMemoria* config) {
+    free(logger);
+    free(config);
+}
+
+//Espera
+
+void sleepAccesoMemoria(){
+	t_log* logger;
+	configMemoria datos_config;
+
+	log_info(logger, "Retardo de %d segundos.", datos_config.retardoMemoria);
+   usleep(datos_config.retardoMemoria);
+}
+
 void inicializarMemoria(){
 
+	configMemoria datos_config;
 	char** memoria;
 
-	configMemoria datos_config;
-	t_log* logger = log_create("LOG_MEMORIA", "MEMORIA", 1, LOG_LEVEL_DEBUG);
+	int cant_marcos = datos_config.marcos;
+	memoria = malloc(sizeof(char*)*cant_marcos); //Reservo memoria con cantidad de frames disponibles
 
-	validar_archivo_configMemoria(&datos_config,logger);
-	consolaMem_imprimir_encabezado();
-	consolaMem_imprimir_menu();
-
-	printf("\n");
+	puts("Memoria\n");
 	printf("Puerto = %d\n",datos_config.puerto);
 	printf("Marco_Size = %d\n",datos_config.marcoSize);
 	printf("Marcos = %d\n",datos_config.marcos);
@@ -127,38 +142,77 @@ void inicializarMemoria(){
 	printf("Cache_X_Proc = %d\n",datos_config.cacheXProc);
 	printf("Retardo_Memoria = %d\n",datos_config.retardoMemoria);
 
+  }
 
-	int cant_marcos = datos_config.marcos;
-	memoria = malloc(sizeof(char*)*cant_marcos); //Reservo memoria con cantidad de frames disponibles
+int main (int argc, char **argv) {
+
+	t_log* logger = log_create("log_memoria", "MEMORIA", 1, LOG_LEVEL_TRACE);
+	configMemoria* conf = (configMemoria*) cargarConfiguracion( "./config", 7, MEMORIA, logger);
+	int socketEscucha, socketKernel;
+//	int flag = 1;
+	uint16_t codigoHandshake;
+	t_package pkg;
+
+	validar_archivo_configMemoria(conf,logger);
+	consolaMem_imprimir_encabezado();
+	consolaMem_imprimir_menu();
+	inicializarMemoria();
+
+	if(escuchar(conf->puerto, &socketEscucha, logger)){
+			//ERROR
+			//TODO LIBERAR MEM
+			return EXIT_FAILURE;
+		}
+		if(aceptar(socketEscucha, &socketKernel, logger )){
+			//ERROR
+			return EXIT_FAILURE;
+		}
+		if(recibirHandshake(socketKernel, MEMORIA_HSK, &codigoHandshake, logger)){
+			//ERROR
+			return EXIT_FAILURE;
+		}
+		if(codigoHandshake != KERNEL_HSK){//Checkear que sea el kernel el proceso al que me conecto
+			log_error(logger, "Codigo incorrecto de Handshake.");
+			return EXIT_FAILURE;
+		}
+
+	//	while(flag){
+	//		if(aceptar(socketEscucha, &socketKernel, logger )){
+	//			//ERROR
+	//			return EXIT_FAILURE;
+	//		}
+	//		if(recibirHandshake(socketKernel, MEMORIA_HSK, &codigoHandshake, logger)){
+	//			//ERROR
+	//			return EXIT_FAILURE;
+	//		}
+	//		if(codigoHandshake == KERNEL_HSK){//Checkear que sea el kernel el proceso al que me conecto
+	//			flag = 0;
+	//		}else{
+	//			close(socketKernel);
+	//		}
+	//	}
 
 
+		while(1){
+			printf("Esperando mensaje del Kernel.\n");
+			if(recibir(socketKernel, &pkg, logger)){
+				//ERROR
+				close(socketKernel);
+				return EXIT_FAILURE;
+			}
+			printf("Mensaje recibido del kernels: %s\n",pkg.data);
+			free(pkg.data);
+		}
+
+		printf("Ingrese una tecla para finalizar.\n");
+		getchar();
+		liberar_memoria(logger, conf);
+		return EXIT_SUCCESS;
 }
 
- void liberar_memoria(t_log* logger,configMemoria* config) {
-     free(logger);
-     free(config);
- }
-
- //Espera
-
- void sleepAccesoMemoria(){
-	t_log* logger;
-	configMemoria datos_config;
-
-	log_info(logger, "Retardo de %d segundos.", datos_config.retardoMemoria);
-    usleep(datos_config.retardoMemoria);
- }
-
-int main(int argc, char **argv) {
-
-	configMemoria datos_config;
-
-	puts("Memoria\n");
-
-        inicializarMemoria();
 
 
-		return 0;
 
-  }
+
+
 
