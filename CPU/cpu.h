@@ -9,6 +9,8 @@
 #include "primitivas.h"
 
 int socketMemoria;
+int socketKernel;
+t_log* logger;
 
 char* depurarSentencia(char* sentencia);
 

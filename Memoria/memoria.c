@@ -55,7 +55,8 @@ int main () {
 		//ERROR
 		return EXIT_FAILURE;
 	}
-	if(codigoHandshake != KERNEL_HSK){//Checkear que sea el kernel el proceso al que me conecto
+	if(codigoHandshake != CPU_HSK){ // XXX: KERNEL_HSK
+		//Checkear que sea el kernel el proceso al que me conecto
 		log_error(logger, "Codigo incorrecto de Handshake.");
 		return EXIT_FAILURE;
 	}
@@ -78,13 +79,13 @@ int main () {
 
 
 	while(1){
-		printf("Esperando mensaje del Kernel.\n");
+		printf("Esperando mensaje del CPU.\n"); // XXX: KERNEL
 		if(recibir(socketKernel, &pkg, logger)){
 			//ERROR
 			close(socketKernel);
 			return EXIT_FAILURE;
 		}
-		printf("Mensaje recibido del kernels: %s\n",pkg.data);
+		printf("Mensaje recibido del CPU: %s\n",pkg.data); // XXX: KERNEL
 		free(pkg.data);
 	}
 

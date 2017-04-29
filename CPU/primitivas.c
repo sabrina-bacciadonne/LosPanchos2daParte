@@ -6,6 +6,14 @@ t_puntero definirVariable(t_nombre_variable identificador_variable){
 	// para una variable llamada identificador_variable y la registra tanto en el Stack
 	// como en el Diccionario de Variables. Retornando la posición del valor de esta nueva variable del stack
 	printf("definiendo variable %c\n",identificador_variable);
+	printf("Socket Memoria: %d\n",socketMemoria);
+	u_int32_t a;
+	if(enviar(socketMemoria, CPU_MEM_DEFVAR, a , sizeof(u_int32_t), logger)){
+		//ERROR
+		close(socketMemoria);
+		return EXIT_FAILURE;
+	}
+	puts("mande algo a memoria\n");
 }
 t_puntero obtenerPosicionVariable (t_nombre_variable identificador_variable){
 	// Devuelve el desplazamiento respecto al inicio del segmento Stack

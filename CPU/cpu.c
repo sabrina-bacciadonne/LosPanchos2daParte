@@ -40,7 +40,7 @@ AnSISOP_kernel primitivas_kernel = {
 };
 
 int main (int argc, char *argv[]) {
-	t_log* logger = log_create("log_kernel", "CPU", 1, LOG_LEVEL_TRACE);
+	logger = log_create("log_kernel", "CPU", 1, LOG_LEVEL_TRACE);
 	configCPU* conf = (configCPU*) cargarConfiguracion("./config", 4, CPU, logger);
 	int socketKernel;
 	t_package pkg;
