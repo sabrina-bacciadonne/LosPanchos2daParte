@@ -29,15 +29,32 @@
 
 #define BACKLOG 40;
 
-enum codigoID {
-	CONSOLA_HSK = 1894,
-	CPU_HSK,
-	KERNEL_HSK,
-	MEMORIA_HSK,
-	FILESYSTEM_HSK,
-	HOLA,
-	CPU_MEM_DEFVAR, // CPU manda a Memoria un msj para definir variable
-	MEM_CPU_POS // Memoria manda a CPU una posición de memoria
+enum codigoID {	CONSOLA_HSK = 1894,
+				CPU_HSK,
+				KERNEL_HSK,
+				MEMORIA_HSK,
+				FILESYSTEM_HSK,
+				//CONSOLA
+				INICIAR_PROG,
+				FINALIZAR_PROG,
+				//KERNEL
+				ACEPTAR_PROG,
+				RECHAZAR_PROG,
+				SOLICITAR_MEM,
+				SOLICITAR_PAGINA,
+				LIBERAR_MEM,
+				ABRIR_ARCHIVO,
+				LEER_ARCHIVO,
+				ESCRIBIR_ARCHIVO,
+				CERRAR_ARCHIVO,
+				//CPU
+				CPU_MEM_DEFVAR, // CPU manda a Memoria un msj para definir variable
+				//MEMORIA
+				TAM_PAG,
+				MEMORIA_PROG,
+				MEM_CPU_POS, // Memoria manda a CPU una posición de memoria
+				//FILE SYSTEM
+				HOLA
 }; // La estructura del nombre sería EMISOR_RECEPTOR_DESCRIPCIONDELMENSAJE
 
 typedef struct {
