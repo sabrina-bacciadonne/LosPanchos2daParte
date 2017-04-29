@@ -4,12 +4,13 @@
 
 #include "consola.h"
 
-
-
+t_log* logger;
+t_list* hilos;
+configConsole* conf;
 
 int main (int argc, char *argv[]) {
 	logger = log_create("log_consola", "CONSOLA", 1, LOG_LEVEL_TRACE);
-	configConsole* conf = (configConsole*) cargarConfiguracion("./config", 2, CONSOLA,logger);
+	conf = (configConsole*) cargarConfiguracion("./config", 2, CONSOLA,logger);
 	hilos = list_create();
 
 

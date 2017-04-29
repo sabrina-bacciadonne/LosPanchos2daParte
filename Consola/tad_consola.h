@@ -14,8 +14,9 @@
 #include <pthread.h>
 
 
-
+void* consola_hiloPrograma(void* arg);
 int consola_reconocerComando();
+
 
 typedef enum {INIT_PROGRAM = 65, FIN_PROGRAM, DISCONNECT, CLEAN} comandos;
 

@@ -12,11 +12,11 @@ void consola_terminarPrograma() {
 	puts("Terminar programa");
 }
 
-void* consola_hiloPrograma() {
+void* consola_hiloPrograma(void* arg) {
 
 	int socketKernel;
 	//Me conecto Al Kernel
-	if (cargarSoket(conf->puerto,conf.ip,&socketKernel, logger)) {
+	if (cargarSoket(conf->puerto,conf->ip,&socketKernel, logger)) {
 		//ERROR
 	}
 	//	//Hago el handshake con el Kernel.
@@ -60,7 +60,7 @@ int consola_crearPrograma() {
 
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_DETACHED);
-	pthread_create(&hilo,NULL,consola_hiloPrograma(), arg1);		//CREAR HILO PASANDOLE ARCHIVO PARA QUE LEA Y ENVIE POR SOCKET
+	pthread_create(&hilo, NULL, consola_hiloPrograma, arg1);		//CREAR HILO PASANDOLE ARCHIVO PARA QUE LEA Y ENVIE POR SOCKET
 
 	list_add(hilos,&hilo);					//AGREGAR SINCRONIZACION
 
@@ -102,7 +102,5 @@ int consola_reconocerComando() {
 		break;
 	}
 
-
-
+	return EXIT_SUCCESS;
 }
-
