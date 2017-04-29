@@ -23,6 +23,7 @@ void consola_imprimir_menu();
 void liberar_memoria();
 
 void agregar_hilo_lista(pthread_mutex_t* semaforo, t_list* lista, pthread_t* hilo);
+void imprimirConsola();
 
 #endif //TP_2017_1C_LOSPANCHOS_CONSOLA_C_H
 

@@ -20,14 +20,16 @@ void* consola_hiloPrograma(void* args) {
 	int socketKernel;
 	char* contenido_archivo_ansisop;
 
-	//Me conecto Al Kernel
-	if (cargarSoket(conf->puerto, conf->ip, &socketKernel, logger)) {
-		//ERROR
-	}
-	//Hago el handshake con el Kernel.
-	if (enviarHandshake(socketKernel, CONSOLA_HSK, KERNEL_HSK, logger)) {
-		//ERROR
-	}
+//	//Me conecto Al Kernel
+//	if (cargarSoket(conf->puerto, conf->ip, &socketKernel, logger)) {
+//		//ERROR
+//	}
+//	//Hago el handshake con el Kernel.
+//	if (enviarHandshake(socketKernel, CONSOLA_HSK, KERNEL_HSK, logger)) {
+//		//ERROR
+//	}
+
+//	puts(argumentos->ruta);
 
 	struct stat prueba;
 	stat(argumentos->ruta,&prueba);
@@ -38,10 +40,15 @@ void* consola_hiloPrograma(void* args) {
 
 	fread(contenido_archivo_ansisop,1,tamanio,argumentos->archivo); //LEO EL CONTENIDO Y GUARDO EN CONTENIDO_ARCHIVO_ANSISOP
 
-//	enviar(socketKernel,)
-//
-//	int enviar(int socket, uint16_t code, char* data, uint32_t size, t_log* logger);
+//	if(!enviar(socketKernel,INICIAR_PROG,contenido_archivo_ansisop,tamanio,logger)){
+//		puts ("NO PUDE ENVIAR NADA\n");
+//	}
 
+	//LIBERO MEMORIA
+
+	free(contenido_archivo_ansisop);
+	free(argumentos);
+	close(socketKernel);
 
 	pthread_t hilo = pthread_self();
 //	list_remove(hilos,hilo);
@@ -63,7 +70,7 @@ int consola_crearProgramaANSISOP() {
 		return EXIT_FAILURE;
 	}
 
-	t_datos_hilo_programa* args = malloc(sizeof(t_datos_hilo_programa));
+	t_datos_hilo_programa* args = malloc(sizeof(t_datos_hilo_programa)); //ESTRUCTURA CON DATOS DEL HILO
 	args->archivo = archivo;
 	args->ruta = ruta;
 
@@ -82,7 +89,9 @@ int consola_crearProgramaANSISOP() {
 
 	pthread_attr_destroy(&attr);
 
-	return EXIT_SUCCESS;
+	free(args);
+
+	return -1;
 
 }
 
@@ -98,29 +107,29 @@ int consola_reconocerComando() {
 	scanf("%d", &leer);
 	int opcion = getchar();
 
-	while (opcion < INIT_PROGRAM || opcion > CLEAN) {
-		puts("La opción ingresada es incorrecta. Intente nuevamente.");
-		scanf("%d", &leer);
-		opcion = getchar();
-	}
-
-	switch (opcion) {
-	case INIT_PROGRAM:
-		consola_crearProgramaANSISOP();
-		return EXIT_SUCCESS;
-		break;
-	case FIN_PROGRAM:
-		consola_terminarPrograma();
-		return EXIT_SUCCESS;
-		break;
-	case DISCONNECT:
-		consola_desconectarConsola();
-		break;
-	case CLEAN:
-		system("clear");
-		return EXIT_SUCCESS;
-		break;
-	}
+//	while (opcion < INIT_PROGRAM || opcion > CLEAN) {
+//		puts("La opción ingresada es incorrecta. Intente nuevamente.");
+//		scanf("%d", &leer);
+//		opcion = getchar();
+//	}
+//
+//	switch (opcion) {
+//	case INIT_PROGRAM:
+//		consola_crearProgramaANSISOP();
+//		return EXIT_SUCCESS;
+//		break;
+//	case FIN_PROGRAM:
+//		consola_terminarPrograma();
+//		return EXIT_SUCCESS;
+//		break;
+//	case DISCONNECT:
+//		consola_desconectarConsola();
+//		break;
+//	case CLEAN:
+//		system("clear");
+//		return EXIT_SUCCESS;
+//		break;
+//	}
 
 	return EXIT_FAILURE;
 }

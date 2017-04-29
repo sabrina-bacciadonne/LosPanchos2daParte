@@ -9,9 +9,10 @@ t_list* hilos;
 configConsole* conf;
 pthread_mutex_t mutex_log;
 
-void agregar_hilo_lista(pthread_mutex_t* semaforo, t_list* lista, pthread_t* hilo) {
+void agregar_hilo_lista(pthread_mutex_t* semaforo, t_list* lista,
+		pthread_t* hilo) {
 	pthread_mutex_lock(semaforo);
-	list_add(lista,hilo);
+	list_add(lista, hilo);
 	pthread_mutex_unlock(semaforo);
 }
 
@@ -26,18 +27,18 @@ int main(int argc, char *argv[]) {
 	printf("\n");
 	printf("\n");
 
-
 	imprimirConsola(CONSOLA);
-	while ((consola_reconocerComando() == 0)) {
-		imprimirConsola(CONSOLA);
-	}
+//	while ((consola_reconocerComando() == 0)) {
+//		imprimirConsola(CONSOLA);
+//	}
 
 	liberar_memoria();
 	return EXIT_SUCCESS;
 }
 
 void liberar_memoria() {
-	free(logger);
+	log_destroy(logger);
 	free(conf);
+	list_destroy(hilos);
 }
 
