@@ -12,6 +12,14 @@
 #include <ctype.h>
 #include <string.h>
 #include <pthread.h>
+#include <stdlib.h>
+
+typedef struct {
+
+	FILE* archivo;
+	char* ruta;
+
+} t_datos_hilo_programa;
 
 
 void* consola_hiloPrograma(void* arg);

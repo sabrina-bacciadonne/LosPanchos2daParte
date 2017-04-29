@@ -16,9 +16,13 @@
 extern t_log* logger;
 extern t_list* hilos;
 extern configConsole* conf;
+extern pthread_mutex_t mutex_log;
 
 void consola_imprimir_encabezado();
 void consola_imprimir_menu();
+void liberar_memoria();
+
+void agregar_hilo_lista(pthread_mutex_t* semaforo, t_list* lista, pthread_t* hilo);
 
 #endif //TP_2017_1C_LOSPANCHOS_CONSOLA_C_H
 

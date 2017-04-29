@@ -7,42 +7,37 @@
 t_log* logger;
 t_list* hilos;
 configConsole* conf;
+pthread_mutex_t mutex_log;
 
-int main (int argc, char *argv[]) {
+void agregar_hilo_lista(pthread_mutex_t* semaforo, t_list* lista, pthread_t* hilo) {
+	pthread_mutex_lock(semaforo);
+	list_add(lista,hilo);
+	pthread_mutex_unlock(semaforo);
+}
+
+int main(int argc, char *argv[]) {
 	logger = log_create("log_consola", "CONSOLA", 1, LOG_LEVEL_TRACE);
-	conf = (configConsole*) cargarConfiguracion("./config", 2, CONSOLA,logger);
+	conf = (configConsole*) cargarConfiguracion("./config", 2, CONSOLA, logger);
 	hilos = list_create();
 
+	printf("IP_KERNEL: %s\n", conf->ip);
+	printf("PUERTO KERNEL: %d\n", conf->puerto);
+	printf("\n");
+	printf("\n");
+	printf("\n");
 
-	printf("IP_KERNEL: %s\n",conf->ip);
-	printf("PUERTO KERNEL: %d\n",conf->puerto);
 
 	imprimirConsola(CONSOLA);
-	while((consola_reconocerComando() != 0)) {
+	while ((consola_reconocerComando() == 0)) {
 		imprimirConsola(CONSOLA);
 	}
 
-//	//Hago el handshake con el Kernel.
-//	if(enviarHandshake(socketKernel, CONSOLA_HSK, KERNEL_HSK,logger)){
-//		//ERROR
-//	}
-//	while(1){
-////		consola_imprimir_menu();
-//		printf("Ingrese una tecla para enviar \"HOLA!\" al Kernel.\n");
-//		getchar();
-//		if(enviar(socketKernel,HOLA,"HOLA!",strlen("HOLA!"),logger)){
-//			//ERROR
-//			close(socketKernel);
-//			return EXIT_FAILURE;
-//		}
-//	}
-
-	liberar_memoria(logger, conf);
+	liberar_memoria();
 	return EXIT_SUCCESS;
 }
 
-void liberar_memoria(t_log* logger,configConsole* config) {
+void liberar_memoria() {
 	free(logger);
-	free(config);
+	free(conf);
 }
 
