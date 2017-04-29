@@ -5,20 +5,22 @@
 #include "consola.h"
 
 
+
+
 int main (int argc, char *argv[]) {
-	t_log* logger = log_create("log_consola", "CONSOLA", 1, LOG_LEVEL_TRACE);
-	configConsole* conf = (configConsole*) cargarConfiguracion("./config", 2, CONSOLA, logger);
-	int socketKernel;
+	logger = log_create("log_consola", "CONSOLA", 1, LOG_LEVEL_TRACE);
+	configConsole* conf = (configConsole*) cargarConfiguracion("./config", 2, CONSOLA,logger);
+	hilos = list_create();
+
 
 	printf("IP_KERNEL: %s\n",conf->ip);
 	printf("PUERTO KERNEL: %d\n",conf->puerto);
-	imprimirConsola(CONSOLA);
-	consola_reconocerComando();
 
-//	//Me conecto Al Kernel
-//	if(cargarSoket(conf->puerto, conf->ip, &socketKernel, logger)){
-//		//ERROR
-//	}
+	imprimirConsola(CONSOLA);
+	while((consola_reconocerComando() != 0)) {
+		imprimirConsola(CONSOLA);
+	}
+
 //	//Hago el handshake con el Kernel.
 //	if(enviarHandshake(socketKernel, CONSOLA_HSK, KERNEL_HSK,logger)){
 //		//ERROR

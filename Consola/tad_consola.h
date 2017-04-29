@@ -8,11 +8,14 @@
 #ifndef TAD_CONSOLA_H_
 #define TAD_CONSOLA_H_
 
-#include <stdlib.h>
-#include <stdio.h>
+#include "consola.h"
+#include <ctype.h>
+#include <string.h>
 #include <pthread.h>
 
-void consola_reconocerComando();
+
+
+int consola_reconocerComando();
 
 typedef enum {INIT_PROGRAM = 65, FIN_PROGRAM, DISCONNECT, CLEAN} comandos;
 
