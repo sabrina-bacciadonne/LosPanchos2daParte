@@ -1,6 +1,18 @@
 #ifndef PRIMITIVAS_H_
 #define PRIMITIVAS_H_
-	t_puntero definirVariable(t_nombre_variable identificador_variable);
+typedef char t_nombre_variable;
+typedef int t_valor_variable;
+
+typedef t_nombre_variable* t_nombre_semaforo;
+typedef t_nombre_variable* t_nombre_etiqueta;
+typedef  t_nombre_variable* t_nombre_compartida;
+typedef  t_nombre_variable* t_direccion_archivo;
+typedef u_int32_t t_puntero;
+typedef u_int32_t t_size;
+typedef t_puntero t_puntero_instruccion;
+typedef t_puntero t_descriptor_archivo;
+
+t_puntero definirVariable(t_nombre_variable identificador_variable);
 	t_puntero obtenerPosicionVariable (t_nombre_variable identificador_variable);
 	t_valor_variable dereferenciar(t_puntero direccion_variable);
 	void asignar(t_puntero direccion_variable,t_valor_variable valor);
@@ -26,5 +38,4 @@
 	void moverCursor_kernel(t_descriptor_archivo descriptor_archivo, t_valor_variable posicion);
 	void escribir_kernel(t_descriptor_archivo descriptor_archivo, void* informacion, t_valor_variable tamanio);
 	void leer_kernel(t_descriptor_archivo descriptor_archivo, t_puntero informacion, t_valor_variable tamanio);
-
 #endif /* PRIMITIVAS_H_ */

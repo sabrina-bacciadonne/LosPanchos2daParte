@@ -1,4 +1,5 @@
 #include "parser/parser.h"
+#include "cpu.h"
 
 t_puntero definirVariable(t_nombre_variable identificador_variable){
 	printf("definiendo variable %c\n",identificador_variable);

@@ -8,7 +8,6 @@
  end
  */
 #include "cpu.h"
-#include "primitivas.h"
 #include "parser/parser.h"
 
 AnSISOP_funciones primitivas = {
@@ -43,7 +42,7 @@ AnSISOP_kernel primitivas_kernel = {
 int main (int argc, char *argv[]) {
 	t_log* logger = log_create("log_kernel", "CPU", 1, LOG_LEVEL_TRACE);
 	configCPU* conf = (configCPU*) cargarConfiguracion("./config", 4, CPU, logger);
-	int socketKernel, socketMemoria;
+	int socketKernel;
 	t_package pkg;
 
 	puts("CPU.");
@@ -60,39 +59,37 @@ int main (int argc, char *argv[]) {
 		//ERROR
 	}
 	log_debug(logger, "Conectado al Kernel");
-//	if(cargarSoket(conf->puertoMemoria, conf->ipMemoria, &socketMemoria, logger)){
-//		//ERROR
-//	}
-//	if(enviarHandshake(socketMemoria, CPU_HSK, MEMORIA_HSK,logger)){
-//		//ERROR
-//	}
-//	log_debug(logger, "Conectado a la Memoria");
 */
-	while(0){ //while(1){
-		printf("Esperando mensaje del Kernel.\n");
-		if(recibir(socketKernel, &pkg, logger)){
-			//ERROR
-			close(socketKernel);
-			return EXIT_FAILURE;
-		}
-		printf("Mensaje recibido del kernels: %s\n",pkg.data);
-		free(pkg.data);
+	if(cargarSoket(conf->puertoMemoria, conf->ipMemoria, &socketMemoria, logger)){
+		//ERROR
+		return EXIT_FAILURE;
 	}
+	if(enviarHandshake(socketMemoria, CPU_HSK, MEMORIA_HSK,logger)){
+		//ERROR
+		return EXIT_FAILURE;
+	}
+	log_debug(logger, "Conectado a la Memoria");
+
+//	while(1){
+//		printf("Esperando mensaje del Kernel.\n");
+//		if(recibir(socketKernel, &pkg, logger)){
+//			//ERROR
+//			close(socketKernel);
+//			return EXIT_FAILURE;
+//		}
+//		printf("Mensaje recibido del kernels: %s\n",pkg.data);
+//		free(pkg.data);
+//	}
 
 /*PARSER*/printf("-- INICIO PARSER --\n");
 	char* sentencia = "variables a, b\n";
 	analizadorLinea(depurarSentencia(sentencia), &primitivas,&primitivas_kernel);
 /*PARSER*/printf("-- FIN PARSER --\n");
 
-	liberar_memoria(logger, conf);
+	free(logger);
+	free(conf);
 	return EXIT_SUCCESS;
 }
-
-void liberar_memoria(t_log* logger,configCPU* config) {
-	free(logger);
-	free(config);
-}
-
 
 char* depurarSentencia(char* sentencia) {
 
