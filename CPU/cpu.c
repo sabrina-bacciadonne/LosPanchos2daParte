@@ -8,7 +8,7 @@
  end
  */
 #include "cpu.h"
-#include "parser/parser.h"
+#include <parser/parser.h>
 
 AnSISOP_funciones primitivas = {
 		.AnSISOP_definirVariable		= definirVariable,
@@ -28,15 +28,16 @@ AnSISOP_funciones primitivas = {
 };
 AnSISOP_kernel primitivas_kernel = {
 		.AnSISOP_wait					=wait_kernel,
-		.AnSISOP_signal					=signal_kernel,
-		.AnSISOP_reservar				=reservar_kernel,
-		.AnSISOP_liberar				=liberar_kernel,
-//		.AnSISOP_abrir					=abrir_kernel,
-		.AnSISOP_borrar					=borrar_kernel,
-		.AnSISOP_cerrar					=cerrar_kernel,
-		.AnSISOP_moverCursor			=moverCursor_kernel,
-		.AnSISOP_escribir				=escribir_kernel,
-		.AnSISOP_leer					=leer_kernel
+		.AnSISOP_signal					=signal_kernel//,
+//		.AnSISOP_reservar				=reservar_kernel,
+//		.AnSISOP_liberar				=liberar_kernel,
+////		.AnSISOP_abrir					=abrir_kernel,
+//		.AnSISOP_borrar					=borrar_kernel,
+//		.AnSISOP_cerrar					=cerrar_kernel,
+//		.AnSISOP_moverCursor			=moverCursor_kernel,
+//		.AnSISOP_escribir				=escribir_kernel,
+//		.AnSISOP_leer					=leer_kernel
+		// XXX: Esto lo comenté porque me rompió cuando hice pull. En el parser.h no lo encontré.
 };
 
 int main (int argc, char *argv[]) {
@@ -83,7 +84,7 @@ int main (int argc, char *argv[]) {
 
 /*PARSER*/printf("-- INICIO PARSER --\n");
 	char* sentencia = "variables a, b\n";
-	analizadorLinea(depurarSentencia(sentencia), &primitivas,&primitivas_kernel);
+	analizadorLinea(depurarSentencia(sentencia), &primitivas, &primitivas_kernel);
 /*PARSER*/printf("-- FIN PARSER --\n");
 
 	free(logger);

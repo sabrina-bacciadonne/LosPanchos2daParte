@@ -86,6 +86,15 @@ int main () {
 			return EXIT_FAILURE;
 		}
 		printf("Mensaje recibido del CPU: %s\n",pkg.data); // XXX: KERNEL
+		char * dato = "0xbfc7c1fc\0";
+		switch(pkg.code) {
+			case CPU_MEM_DEFVAR: // Me pide reservar memoria para una variable
+				enviar(socketKernel, MEM_CPU_POS, dato, strlen(dato), logger);
+				break;
+			default:
+				close(socketKernel);
+				return EXIT_FAILURE;
+		}
 		free(pkg.data);
 	}
 

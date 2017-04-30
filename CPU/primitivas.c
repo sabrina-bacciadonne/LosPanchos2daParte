@@ -1,20 +1,41 @@
 #include "parser/parser.h"
 #include "cpu.h"
 
+t_package pkg;
+
 t_puntero definirVariable(t_nombre_variable identificador_variable){
 	// Reserva en el Contexto de Ejecución Actual el espacio necesario
 	// para una variable llamada identificador_variable y la registra tanto en el Stack
 	// como en el Diccionario de Variables. Retornando la posición del valor de esta nueva variable del stack
-	printf("definiendo variable %c\n",identificador_variable);
-	printf("Socket Memoria: %d\n",socketMemoria);
-	u_int32_t a;
-	if(enviar(socketMemoria, CPU_MEM_DEFVAR, a , sizeof(u_int32_t), logger)){
+	printf("Definiendo variable %c\n",identificador_variable);
+
+	// Guardo el nombre de la variable para poder enviarlo a la memoria
+	char* id_variable = malloc(sizeof(t_nombre_variable));
+	id_variable = &identificador_variable;
+
+	// Envio a la memoria los datos para reservar el espacio necesario
+	if(enviar(socketMemoria, CPU_MEM_DEFVAR, id_variable, sizeof(t_nombre_variable), logger)){
 		//ERROR
 		close(socketMemoria);
 		return EXIT_FAILURE;
 	}
-	puts("mande algo a memoria\n");
+	// free(id_variable); XXX: Revisar por que falla este free
+
+	// Recibo de la memoria el puntero de esa variable
+	if(recibir(socketMemoria, &pkg, logger) || pkg.code != MEM_CPU_POS){
+		//ERROR
+		close(socketMemoria);
+		return EXIT_FAILURE;
+	}
+
+	// TODO: registrar en el stack (Ya tengo el nombre en id_variable)
+	// TODO: registrar en el diccionario de variables
+
+	// Devuelvo la posición de memoria que se asignó a la variable
+	log_debug(logger, "La posición de memoria que se asignó fue: %s", pkg.data);
+	return (t_puntero) pkg.data;
 }
+
 t_puntero obtenerPosicionVariable (t_nombre_variable identificador_variable){
 	// Devuelve el desplazamiento respecto al inicio del segmento Stack
 	// en que se encuentra el valor de la variable identificador_variable del contexto actual.
