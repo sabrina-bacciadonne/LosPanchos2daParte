@@ -6,6 +6,9 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <commons/collections/dictionary.h>
+
 
 
 void consolaMem_imprimir_encabezado(){
@@ -126,88 +129,189 @@ void sleepAccesoMemoria(){
    usleep(datos_config.retardoMemoria);
 }
 
-void inicializarMemoria(){
+void inicializarMemoria(t_log* logger,configMemoria* datos_config){
 
-	configMemoria datos_config;
 	char** memoria;
 
-	int cant_marcos = datos_config.marcos;
+	int cant_marcos = datos_config->marcos;
 	memoria = malloc(sizeof(char*)*cant_marcos); //Reservo memoria con cantidad de frames disponibles
 
 	puts("Memoria\n");
-	printf("Puerto = %d\n",datos_config.puerto);
-	printf("Marco_Size = %d\n",datos_config.marcoSize);
-	printf("Marcos = %d\n",datos_config.marcos);
-	printf("Entradas_Cache = %d\n",datos_config.entradasCache);
-	printf("Cache_X_Proc = %d\n",datos_config.cacheXProc);
-	printf("Retardo_Memoria = %d\n",datos_config.retardoMemoria);
+	printf("Puerto = %d\n",datos_config->puerto);
+	printf("Marco_Size = %d\n",datos_config->marcoSize);
+	printf("Marcos = %d\n",datos_config->marcos);
+	printf("Entradas_Cache = %d\n",datos_config->entradasCache);
+	printf("Cache_X_Proc = %d\n",datos_config->cacheXProc);
+	printf("Retardo_Memoria = %d\n",datos_config->retardoMemoria);
+
 
   }
 
+int conexion_kernel(t_log* logger,configMemoria* datos_config){
+
+	int socketEscucha, socketKernel;
+	    //	int flag = 1;
+	        uint16_t codigoHandshake;
+	    	t_package pkg;
+
+	if(escuchar(datos_config->puerto, &socketEscucha, logger)){
+	    	//ERROR
+	    	//TODO LIBERAR MEM
+	    	return EXIT_FAILURE;
+	}
+	 if(aceptar(socketEscucha, &socketKernel, logger )){
+	        //ERROR
+	    	return EXIT_FAILURE;
+	}
+
+	 if(recibirHandshake(socketKernel, MEMORIA_HSK, &codigoHandshake, logger)){
+	        //ERROR
+	        return EXIT_FAILURE;
+	 }
+
+	 if(codigoHandshake != KERNEL_HSK){//Checkear que sea el kernel el proceso al que me conecto
+	    	log_error(logger, "Codigo incorrecto de Handshake.");
+	        return EXIT_FAILURE;
+	 }
+
+	 //	while(flag){
+	//	     if(aceptar(socketEscucha, &socketKernel, logger )){
+    //	        //ERROR
+	 //	return EXIT_FAILURE;
+	 //	}
+	//if(recibirHandshake(socketKernel, MEMORIA_HSK, &codigoHandshake, logger)){
+    //	  //ERROR
+	    				//return EXIT_FAILURE;
+	    				//}
+	    				//if(codigoHandshake == KERNEL_HSK){//Checkear que sea el kernel el proceso al que me conecto
+	    				//	 flag = 0;
+	    				//	}else{
+	    				//	      close(socketKernel);
+	    				//	}
+	    				//}
+
+	    				while(1){
+	    				     printf("Esperando mensaje del Kernel.\n");
+	    				           if(recibir(socketKernel, &pkg, logger)){
+	    				           //ERROR
+	    				     close(socketKernel);
+	    				return EXIT_FAILURE;
+	    				}
+
+	    				printf("Mensaje recibido del kernels: %s\n",pkg.data);
+	    				free(pkg.data);
+	    				}
+
+	    				printf("Ingrese una tecla para finalizar.\n");
+	    				getchar();
+	    				liberar_memoria(logger, datos_config);
+	    				return EXIT_SUCCESS;
+
+
+}
+
+int conexion_cpu(t_log* logger,configMemoria* datos_config) {
+
+	int socketEscucha, socketCPU;
+		    //	int flag = 1;
+		        uint16_t codigoHandshake;
+		    	t_package pkg;
+
+		if(escuchar(datos_config->puerto, &socketEscucha, logger)){
+		    	//ERROR
+		    	//TODO LIBERAR MEM
+		    	return EXIT_FAILURE;
+		}
+		 if(aceptar(socketEscucha, &socketCPU, logger )){
+		        //ERROR
+		    	return EXIT_FAILURE;
+		}
+
+		 if(recibirHandshake(socketCPU, MEMORIA_HSK, &codigoHandshake, logger)){
+		        //ERROR
+		        return EXIT_FAILURE;
+		 }
+
+		 if(codigoHandshake != CPU_HSK){//Checkear que sea la CPU quien se conecto
+		    	log_error(logger, "Codigo incorrecto de Handshake.");
+		        return EXIT_FAILURE;
+		 }
+
+		 while(1){
+		 	  printf("Esperando mensaje de la CPU\n");
+		 	    	if(recibir(socketCPU, &pkg, logger)){
+		 	    	//ERROR
+		 	  close(socketCPU);
+		 	    	return EXIT_FAILURE;
+		 }
+
+		 	 printf("Mensaje recibido de la CPU: %s\n",pkg.data);
+		 	 free(pkg.data);
+		 }
+
+		 	 printf("Ingrese una tecla para finalizar.\n");
+		 	 getchar();
+		 	 liberar_memoria(logger, datos_config);
+		 	 return EXIT_SUCCESS;
+}
+
+void funcionesKernel (){
+
+	puts("PROBANDO KERNEL");
+
+}
+
+void funcionesCPU (){
+
+	puts("PROBANDO CPU");
+
+}
+
+void recibir_conexiones(){
+
+	t_log* logger;
+	configMemoria* confM;
+	configKernel* confK = (configKernel*)cargarConfiguracion("./config", 14, KERNEL, logger);
+	configCPU* confCPU = (configCPU*)cargarConfiguracion("./config", 14, CPU, logger);
+
+	int socketMemoria,socketKernel,socketListen,newSocket,socketCPU=0;
+	int conectados;
+
+	if(cargarSoket(confK->puertoMemoria, confK->ipMemoria, &socketKernel, logger)){
+		conexion_kernel(logger,confK);
+		pthread_t hiloKernel;
+		pthread_create (&hiloKernel, NULL, (void*) funcionesKernel, (void*)socketKernel);
+		log_debug(logger, "Conectado con el Kernel");
+     }else{
+    	if (cargarSoket(confCPU->puertoKernel, confCPU->ipKernel,&socketCPU, logger)){
+    		conexion_cpu(logger,confCPU);
+    		pthread_t hiloCPU;
+    		pthread_create (&hiloCPU, NULL, (void*) funcionesCPU, (void*)socketCPU);
+    		log_debug(logger, "Conectado con el Kernel");
+    	}
+
+     }
+///	if(enviarHandshake(socketMemoria, KERNEL_HSK, MEMORIA_HSK,logger)){
+		//ERROR
+	//	return EXIT_FAILURE;
+	//}
+	//log_debug(logger, "Conectado con la memoria.");
+
+}
+
+
 int main (int argc, char **argv) {
 
-	t_log* logger = log_create("log_memoria", "MEMORIA", 1, LOG_LEVEL_TRACE);
-	configMemoria* conf = (configMemoria*) cargarConfiguracion( "./config", 7, MEMORIA, logger);
-	int socketEscucha, socketKernel;
-//	int flag = 1;
-	uint16_t codigoHandshake;
-	t_package pkg;
+    configMemoria* datos_config;
+    t_log* logger;
 
-	validar_archivo_configMemoria(conf,logger);
+	logger = log_create("log_memoria", "MEMORIA", 1, LOG_LEVEL_TRACE);
+	datos_config = (configMemoria*) cargarConfiguracion( "./config", 7, MEMORIA, logger);
+
+    inicializarMemoria(logger,datos_config);
+    validar_archivo_configMemoria(datos_config,logger);
 	consolaMem_imprimir_encabezado();
 	consolaMem_imprimir_menu();
-	inicializarMemoria();
-
-	if(escuchar(conf->puerto, &socketEscucha, logger)){
-			//ERROR
-			//TODO LIBERAR MEM
-			return EXIT_FAILURE;
-		}
-		if(aceptar(socketEscucha, &socketKernel, logger )){
-			//ERROR
-			return EXIT_FAILURE;
-		}
-		if(recibirHandshake(socketKernel, MEMORIA_HSK, &codigoHandshake, logger)){
-			//ERROR
-			return EXIT_FAILURE;
-		}
-		if(codigoHandshake != KERNEL_HSK){//Checkear que sea el kernel el proceso al que me conecto
-			log_error(logger, "Codigo incorrecto de Handshake.");
-			return EXIT_FAILURE;
-		}
-
-	//	while(flag){
-	//		if(aceptar(socketEscucha, &socketKernel, logger )){
-	//			//ERROR
-	//			return EXIT_FAILURE;
-	//		}
-	//		if(recibirHandshake(socketKernel, MEMORIA_HSK, &codigoHandshake, logger)){
-	//			//ERROR
-	//			return EXIT_FAILURE;
-	//		}
-	//		if(codigoHandshake == KERNEL_HSK){//Checkear que sea el kernel el proceso al que me conecto
-	//			flag = 0;
-	//		}else{
-	//			close(socketKernel);
-	//		}
-	//	}
-
-
-		while(1){
-			printf("Esperando mensaje del Kernel.\n");
-			if(recibir(socketKernel, &pkg, logger)){
-				//ERROR
-				close(socketKernel);
-				return EXIT_FAILURE;
-			}
-			printf("Mensaje recibido del kernels: %s\n",pkg.data);
-			free(pkg.data);
-		}
-
-		printf("Ingrese una tecla para finalizar.\n");
-		getchar();
-		liberar_memoria(logger, conf);
-		return EXIT_SUCCESS;
 }
 
 
