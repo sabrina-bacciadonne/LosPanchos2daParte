@@ -8,4 +8,6 @@ typedef struct __attribute__((packed))t_pcb{
 	char *indiceDeEtiquetas;
 	int *indiceDelStack;
 	int exitCode;
+	//t_size      instrucciones_size;           // Cantidad de instrucciones
+	//t_intructions* instrucciones_serializado; // Instrucciones del programa
 }t_pcb;

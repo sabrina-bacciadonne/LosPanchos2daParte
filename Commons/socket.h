@@ -54,6 +54,9 @@ enum codigoID {	CONSOLA_HSK = 1894,
 				MEMORIA_PROG,
 				MEM_CPU_POS, // Memoria manda a CPU una posición de memoria
 				MEM_CPU_DERE,
+				CPU_MEM_POS,
+				CPU_NUC_VAL,
+				CPU_NUC_TXT,
 				//FILE SYSTEM
 				HOLA
 }; // La estructura del nombre sería EMISOR_RECEPTOR_DESCRIPCIONDELMENSAJE

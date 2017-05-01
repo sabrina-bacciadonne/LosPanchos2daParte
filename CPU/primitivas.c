@@ -41,6 +41,20 @@ t_puntero obtenerPosicionVariable (t_nombre_variable identificador_variable){
 	// en que se encuentra el valor de la variable identificador_variable del contexto actual.
 	// En caso de error, retorna -1.
 	printf("obtenieindo posicion variable %c\n",identificador_variable);
+
+	// Guardo el nombre de la variable para poder enviarlo a la memoria
+	char* id_variable = malloc(sizeof(t_nombre_variable));
+	id_variable = &identificador_variable;
+
+	// Envio a la memoria los datos para reservar el espacio necesario
+	if(enviar(socketMemoria, CPU_MEM_POS, id_variable, sizeof(t_nombre_variable), logger)){
+		//ERROR
+		close(socketMemoria);
+		return EXIT_FAILURE;
+	}
+
+	//TODO: envie a la memoria la variable, necesito que la memoria me devuelva la posicion y saber que devuelvo
+	return 0;
 }
 t_valor_variable dereferenciar(t_puntero direccion_variable){
 	printf("dereferenciando direccion de variable\n");
@@ -108,9 +122,23 @@ void retornar(t_valor_variable retorno){
 }
 void imprimir(t_valor_variable valor_mostrar){
 	printf("imprimiendo...\n");
+	char* kernel_valor = malloc(sizeof(t_valor_variable));
+	kernel_valor = &valor_mostrar;
+	log_info(logger,"Valor a Imprimir: %d\n", kernel_valor);
+	enviar(socketKernel, CPU_NUC_VAL, kernel_valor, sizeof(t_valor_variable), logger);
+	return;
 }
 void imprimirTexto(char*texto){
 	printf("imprimiendo...\n");
+	int largo = strlen(texto);
+	char *kernel_txt = malloc(largo);
+	char* barra_cero="\0";
+	memcpy(kernel_txt, texto, largo);
+	memcpy(kernel_txt+largo, barra_cero, 1);
+	log_info(logger,"Texto a Imprimir: %s\n", kernel_txt);
+	enviar(socketKernel, CPU_NUC_TXT, kernel_txt, largo+1, logger);
+	free(kernel_txt);
+	return;
 }
 //void entradaSalida(t_nombre_dispositivo dispositivo,int tiempo){
 //	printf("imprimiendo...\n");
