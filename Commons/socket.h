@@ -79,5 +79,6 @@ char* compress(int code, char* data, uint32_t size, t_log* logger);
 int enviar(int socket, uint16_t code, char* data, uint32_t size, t_log* logger);
 int recibir(int socket,t_package* mensaje, t_log* logger);
 int recvPkg(int socket, char** buffer, uint32_t size, t_log* logger);
+int highestFD(int , int );
 
 #endif /* SOCKET_H_ */

@@ -135,6 +135,7 @@ char* compress(int code, char* data, uint32_t size, t_log* logger){
 		memcpy(compressPack + packageSize(0), data, size);
 		return compressPack;
 	}
+	free(compress);
 	log_error(logger,"Error al asignar espacio para el packete de salida");
 	return NULL;
 }
@@ -162,7 +163,7 @@ int enviar(int socket, uint16_t code, char* data, uint32_t size, t_log* logger){
 int recibir(int socket,t_package* mensaje, t_log* logger){
 	int headerSize = packageHeaderSize;
 	char* buffer;
-	//Recibo el primer parametro del header.
+	//Recibo el header primero
 	if(recvPkg(socket, &buffer, headerSize, logger)){
 		return EXIT_FAILURE;
 	}
@@ -176,6 +177,7 @@ int recibir(int socket,t_package* mensaje, t_log* logger){
 	if(!mensaje->size){
 		return EXIT_SUCCESS;
 	}
+	//Ahora recibo los datos de ser necesario.
 	if(recvPkg(socket, &buffer,mensaje->size, logger)){
 		return EXIT_FAILURE;
 	}
@@ -185,22 +187,35 @@ int recibir(int socket,t_package* mensaje, t_log* logger){
 }
 
 int recvPkg(int socket, char** buffer, uint32_t size, t_log* logger){
-	int recibido;
-	char* buff;
+	int recibido, recibidoTotal=0;
+	char* buff, *buffAux;
+	*buffer = NULL;
 	if(size < 1){
 		return EXIT_SUCCESS;
 	}
 	buff = (char*)malloc(sizeof(size)+1);
-	memset(buff,'\0',size + 1);
-	recibido = recv(socket, buff, size,0);
-	if(recibido < 0){
-		log_error(logger, "Error al recibir: %s",strerror(errno));
-		return EXIT_FAILURE;
-	}
-	if(recibido < size){
-		log_error(logger, "El tamanio del mensaje no coincide con el esperado.\nRecibido:%d \tEsperado:%d", recibido, size);
-		return EXIT_FAILURE;
-	}
-	*(buffer) = buff;
+	buffAux = (char*)malloc(sizeof(size)+1);
+	memset(buffAux,'\0',size + 1);
+	do{
+		memset(buff,'\0',size + 1);
+		recibido = recv(socket, buff, size,0);
+		if(recibido < 0){
+			free(buff);
+			free(buffAux);
+			log_error(logger, "Error al recibir: %s",strerror(errno));
+			return EXIT_FAILURE;
+		}
+		memcpy((buffAux+recibidoTotal), buff, recibido);
+		recibidoTotal += recibido;
+	} while(recibidoTotal < size);
+	free(buff);
+	(*buffer) = buffAux;
 	return EXIT_SUCCESS;
+}
+
+int highestFD(int fd, int nfd){
+	if(fd >= nfd){
+		return fd + 1;
+	}
+	return nfd;
 }
