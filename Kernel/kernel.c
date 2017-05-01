@@ -8,17 +8,33 @@
 int main (int argc, char *argv[]) {
 	t_log* logger = log_create("log_kernel", "KERNEL", 1, LOG_LEVEL_TRACE);
 	configKernel* conf = (configKernel*)cargarConfiguracion("./config", 14, KERNEL, logger);
-	int socketMemoria,socketFS,socketListen,newSocket,socketCPU=0,socketConsola=0;
-	int conectados, fd;
+	int //socketMemoria,
+		//socketFS,
+		socketListen,
+		newSocket,
+		socketCPU=0,
+		socketConsola=0,
+		*pSocket,
+		pidCount = 1;
+	int conectados, fd, nfd=0, terminar=0 ;
 	uint16_t codigoHandshake;
-	t_package pkg;
-	fd_set readset;
-	FD_ZERO(&readset);
+	//t_package pkg;
+	fd_set readSet;
+	struct timeval timeOut;
+	timeOut.tv_sec = 10;
+	timeOut.tv_usec = 500000;
+	t_dictionary* consolas =  dictionary_create();
+	t_dictionary* cpus =  dictionary_create();
+	char* key;
+	t_proceso* proceso;
 
+
+
+	FD_ZERO(&readSet);
 	//Imprimo la configuracion
 	printConfig(conf);
 
-
+/*
 	//Me conecto con la Memoria
 	if(cargarSoket(conf->puertoMemoria, conf->ipMemoria, &socketMemoria, logger)){
 		//ERROR
@@ -41,8 +57,11 @@ int main (int argc, char *argv[]) {
 	}
 	log_debug(logger, "Conectado con el FileSystem.");
 
-//	FD_SET(socketMemoria, &readset);
-//	FD_SET(socketFS, &readset);
+//	FD_SET(socketMemoria, &readSet);
+	nfd = highestFD(socketMemoria,nfd);
+//	FD_SET(socketFS, &readSet);
+	nfd = highestFD(socketFS,nfd);
+ */
 
 	//Me pongo a escuchar conecciones de consolas y CPUs
 	if(escuchar(conf->puerto_prog, &socketListen, logger)){
@@ -50,7 +69,7 @@ int main (int argc, char *argv[]) {
 		return EXIT_FAILURE;
 	}
 
-	for(conectados=0;conectados<2;conectados++){
+	for(conectados=0;conectados<1;conectados++){
 
 		if(aceptar(socketListen, &newSocket, logger)){
 			//ERROR
@@ -62,28 +81,54 @@ int main (int argc, char *argv[]) {
 		}
 		if(!socketConsola && codigoHandshake == CONSOLA_HSK){
 			socketConsola = newSocket;
-			FD_SET(socketConsola, &readset);
+			FD_SET(socketConsola, &readSet);
+			nfd = highestFD(socketConsola,nfd);
 		}else if(!socketCPU && codigoHandshake == CPU_HSK){
 			socketCPU = newSocket;
-			FD_SET(socketCPU, &readset);
+			FD_SET(socketCPU, &readSet);
+			nfd = highestFD(socketCPU,nfd);
 		}else{
 			close(newSocket); //No se reconoce el codigo del Handshake.
 		}
 	}
-	FD_SET(socketListen, &readset);
+	FD_SET(socketListen, &readSet);
+	nfd = highestFD(socketCPU,nfd);
+	while(!terminar){
+		fd = select(nfd,&readSet, NULL, NULL, &timeOut);
 
-	while(1){
-		fd = select();
+		if(fd < 0){
 
+			log_error(logger, "Error en el select: %s", strerror(errno));
+			terminar = 1;
 
+		}else if(fd == socketListen){
 
+			newSocket = aceptarConexion(socketListen, &readSet, &nfd, cpus, consolas, &pidCount, logger);
+			if(newSocket < 0){
+				terminar = 1;
+			}
 
-		if(recibir(socketConsola, &pkg, logger)){
-			//ERROR
-			closeConections(socketCPU, socketFS, socketMemoria, socketConsola);
-			return EXIT_FAILURE;
+		} else {
+			key = string_itoa(newSocket);
+			proceso = dictionary_get(consolas, key);
+			if(pSocket != NULL){
+				//es un socket de consola
+				atenderConsola(proceso, logger);
+			}
+			else{
+				pSocket = dictionary_get(cpus, key);
+				if(pSocket != NULL){
+					//Es un socket CPU
+				}
+			}
 		}
-		printf("Mensaje recibido de la consola: %s\n",pkg.data);
+
+//		if(recibir(socketConsola, &pkg, logger)){
+//			//ERROR
+//			closeConections(socketCPU, socketFS, socketMemoria, socketConsola);
+//			return EXIT_FAILURE;
+//		}
+//		printf("Mensaje recibido de la consola: %s\n",pkg.data);
 
 //		log_debug(logger, "se envia el mensaje a la CPU");
 //		if(enviar(socketCPU, HOLA, pkg.data, pkg.size, logger)){
@@ -107,6 +152,8 @@ int main (int argc, char *argv[]) {
 	}
 	printf("Ingrese una tecla para finalizar.\n");
 	getchar();
+	dictionary_destroy_and_destroy_elements(cpus, free);
+	dictionary_destroy_and_destroy_elements(consolas, free);
 	return EXIT_SUCCESS;
 }
 
@@ -138,4 +185,93 @@ void printConfig(configKernel* conf){
 	printf("SEM INITS%s\n",conf->semInits);
 	printf("SHARED_VARS: %s\n",conf->sharedVars);
 	printf("STACK_SIZE: %d\n",conf->stackSize);
+}
+
+/**
+ * Acepta conexiones de las consolas y las cpus
+ *
+ */
+int aceptarConexion(int socketListen,fd_set* readSet,int* nfd, t_dictionary* cpus, t_dictionary* consolas,int* pidCount, t_log* logger){
+
+	int* newSocket = malloc(sizeof(int));
+	char* key;
+	uint16_t codigoHandshake;
+	t_proceso* proc;
+
+	if(aceptar(socketListen, newSocket, logger)){
+		//ERROR
+		free(newSocket);
+		return -1;
+	}
+	if(recibirHandshake(*newSocket, KERNEL_HSK, &codigoHandshake, logger)){
+		//ERROR
+		free(newSocket);
+		return -1;
+	}
+	key = string_itoa(*newSocket);
+	if(codigoHandshake == CONSOLA_HSK){
+		FD_SET(*newSocket, readSet);
+		highestFD(*newSocket, *nfd);
+		proc = crearProceso(*newSocket, pidCount);
+		dictionary_put(consolas, key, newSocket);
+	}else if(codigoHandshake == CPU_HSK){
+		FD_SET(*newSocket, readSet);
+		highestFD(*newSocket, *nfd);
+		dictionary_put(cpus, key, newSocket);
+	}else{ //No se reconoce el codigo del Handshake.
+		log_warning(logger, "Se intento conectar un proceso no reconocido.");
+		close(*newSocket);
+		free(newSocket);
+		free(key);
+		return -1;
+	}
+	return *newSocket;
+}
+
+t_proceso* crearProceso(int socket, int* pidCount, t_log* logger){
+	t_package pkg;
+	t_proceso * proc = NULL;
+	proc->socket = socket;
+	proc->pid = crearPidSock(pidCount);
+
+	//Espero recibir el codigo del nuevo proceso.
+	if(recibir(socket, &pkg, logger)){
+		//ERROR
+		return EXIT_FAILURE;
+	}
+	if(pkg.code == INICIAR_PROG){
+
+		if(pkg.size != 0 && pkg.data != NULL){
+			proc = (t_proceso *)malloc(sizeof(t_proceso));
+			proc->socket = socket;
+			proc->pid = crearPidSock(pidCount);
+			proc->ansisop = pkg.data;
+		}
+	}
+
+	return proc;
+}
+
+int atenderConsola(t_proceso* proc, int* pidCount, t_log* logger){
+	t_package pkg;
+
+	if(recibir(socket, &pkg, logger)){
+		//ERROR
+		return EXIT_FAILURE;
+	}
+	//Proceso Nuevo a Ejecutar
+	if(pkg.code == INICIAR_PROG){
+		crearPidSock(proc, pidCount);
+		if(pkg->size != 0 && pkg->data != NULL){
+			proc->ansisop = pkg->data;
+		}
+	}
+	return EXIT_SUCCESS;
+}
+
+int crearPidSock(int* pidCount){
+	int res = *pidCount;
+	//TODO Agregar checkeo para max int value o es inecesario?
+	*pidCount = (*pidCount) + 1;
+	return res;
 }
