@@ -267,37 +267,29 @@ void funcionesCPU (){
 
 }
 
-void recibir_conexiones(){
+void recibir_conexiones(t_log* logger,configMemoria* confM){
 
-	t_log* logger;
-	configMemoria* confM;
-	configKernel* confK = (configKernel*)cargarConfiguracion("./config", 14, KERNEL, logger);
-	configCPU* confCPU = (configCPU*)cargarConfiguracion("./config", 14, CPU, logger);
+	int socketKernel,socketCPU;
 
-	int socketMemoria,socketKernel,socketListen,newSocket,socketCPU=0;
-	int conectados;
-
-	if(cargarSoket(confK->puertoMemoria, confK->ipMemoria, &socketKernel, logger)){
-		conexion_kernel(logger,confK);
+	if(conexion_kernel(logger,confM)){
 		pthread_t hiloKernel;
 		pthread_create (&hiloKernel, NULL, (void*) funcionesKernel, (void*)socketKernel);
 		log_debug(logger, "Conectado con el Kernel");
-     }else{
-    	if (cargarSoket(confCPU->puertoKernel, confCPU->ipKernel,&socketCPU, logger)){
-    		conexion_cpu(logger,confCPU);
-    		pthread_t hiloCPU;
-    		pthread_create (&hiloCPU, NULL, (void*) funcionesCPU, (void*)socketCPU);
-    		log_debug(logger, "Conectado con el Kernel");
-    	}
-
      }
+    if (conexion_cpu(logger,confM)){
+    	pthread_t hiloCPU;
+    	pthread_create (&hiloCPU, NULL, (void*) funcionesCPU, (void*)socketCPU);
+    	log_debug(logger, "Conectado con la CPU");
+    }
+
+ }
 ///	if(enviarHandshake(socketMemoria, KERNEL_HSK, MEMORIA_HSK,logger)){
 		//ERROR
 	//	return EXIT_FAILURE;
 	//}
 	//log_debug(logger, "Conectado con la memoria.");
 
-}
+//}
 
 
 int main (int argc, char **argv) {
@@ -308,10 +300,12 @@ int main (int argc, char **argv) {
 	logger = log_create("log_memoria", "MEMORIA", 1, LOG_LEVEL_TRACE);
 	datos_config = (configMemoria*) cargarConfiguracion( "./config", 7, MEMORIA, logger);
 
+
     inicializarMemoria(logger,datos_config);
     validar_archivo_configMemoria(datos_config,logger);
 	consolaMem_imprimir_encabezado();
 	consolaMem_imprimir_menu();
+	recibir_conexiones(logger,datos_config);
 }
 
 
