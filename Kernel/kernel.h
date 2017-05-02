@@ -24,7 +24,7 @@ void printConfig(configKernel* conf);
 int aceptarConexion(int socketListen,fd_set* readSet,int* nfd, t_dictionary* cpus, t_dictionary* consolas,int* pidCount, t_log* logger);
 
 
-int atenderConsola(t_proceso* proc, int* pidCount, t_log* logger);
+int atenderConsola(int socket, int* pidCount, t_log* logger);
 int crearPidSock(int* pidCount);
 
 #endif //TP_2017_1C_LOSPANCHOS_KERNEL_H
