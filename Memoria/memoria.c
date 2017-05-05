@@ -198,7 +198,7 @@ int conexion_kernel(t_log* logger,configMemoria* datos_config){
 	    				return EXIT_FAILURE;
 	    				}
 
-	    				printf("Mensaje recibido del kernels: %s\n",pkg.data);
+	    				printf("Mensaje recibido del kernel: %s\n",pkg.data);
 	    				free(pkg.data);
 	    				}
 
@@ -280,14 +280,11 @@ void recibir_conexiones(t_log* logger,configMemoria* confM){
     	pthread_t hiloCPU;
     	pthread_create (&hiloCPU, NULL, (void*) funcionesCPU, (void*)socketCPU);
     	log_debug(logger, "Conectado con la CPU");
+    	printf("pasamos por aqui");
     }
 
  }
-///	if(enviarHandshake(socketMemoria, KERNEL_HSK, MEMORIA_HSK,logger)){
-		//ERROR
-	//	return EXIT_FAILURE;
-	//}
-	//log_debug(logger, "Conectado con la memoria.");
+//void conexion_cerrada(socket, ){
 
 //}
 
