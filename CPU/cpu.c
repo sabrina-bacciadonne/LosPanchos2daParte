@@ -1,8 +1,5 @@
-//
-// Created by Martin Gauna on 4/2/17.
-//
 /*
- * #!/usr/bin/ansisop
+ #!/usr/bin/ansisop
  begin
  variables a, b
  a = 3
@@ -11,27 +8,27 @@
  end
  */
 #include "cpu.h"
+#include <parser/parser.h>
 
+AnSISOP_funciones primitivas = {
+		.AnSISOP_definirVariable		= definirVariable,
+		.AnSISOP_obtenerPosicionVariable= obtenerPosicionVariable,
+		.AnSISOP_dereferenciar			= dereferenciar,
+		.AnSISOP_asignar				= asignar,
+		.AnSISOP_obtenerValorCompartida = obtenerValorCompartida,
+		.AnSISOP_asignarValorCompartida = asignarValorCompartida,
+		.AnSISOP_irAlLabel				= irAlLabel,
+		.AnSISOP_llamarConRetorno		= llamarConRetorno,
+		.AnSISOP_retornar				= retornar,
+		//.AnSISOP_imprimir				= imprimir,
+		//.AnSISOP_imprimirTexto			= imprimirTexto,
+		//.AnSISOP_entradaSalida			= entradaSalida,
+		.AnSISOP_finalizar				= finalizar
 
-//AnSISOP_funciones primitivas = {
-//		.AnSISOP_definirVariable		= definirVariable,
-//		.AnSISOP_obtenerPosicionVariable= obtenerPosicionVariable,
-//		.AnSISOP_dereferenciar			= dereferenciar,
-//		.AnSISOP_asignar				= asignar,
-//		.AnSISOP_obtenerValorCompartida = obtenerValorCompartida,
-//		.AnSISOP_asignarValorCompartida = asignarValorCompartida,
-//		.AnSISOP_irAlLabel				= irAlLabel,
-//		.AnSISOP_llamarConRetorno		= llamarConRetorno,
-//		.AnSISOP_retornar				= retornar,
-//		//.AnSISOP_imprimir				= imprimir,
-//		//.AnSISOP_imprimirTexto			= imprimirTexto,
-//		//.AnSISOP_entradaSalida			= entradaSalida,
-//		.AnSISOP_finalizar				= finalizar
-//
-//};
-//AnSISOP_kernel primitivas_kernel = {
-//		.AnSISOP_wait					=wait_kernel,
-//		.AnSISOP_signal					=signal_kernel,
+};
+AnSISOP_kernel primitivas_kernel = {
+		.AnSISOP_wait					=wait_kernel,
+		.AnSISOP_signal					=signal_kernel//,
 //		.AnSISOP_reservar				=reservar_kernel,
 //		.AnSISOP_liberar				=liberar_kernel,
 ////		.AnSISOP_abrir					=abrir_kernel,
@@ -40,12 +37,13 @@
 //		.AnSISOP_moverCursor			=moverCursor_kernel,
 //		.AnSISOP_escribir				=escribir_kernel,
 //		.AnSISOP_leer					=leer_kernel
-//};
+		// XXX: Esto lo comenté porque me rompió cuando hice pull. En el parser.h no lo encontré.
+};
 
 int main (int argc, char *argv[]) {
-	t_log* logger = log_create("log_kernel", "CPU", 1, LOG_LEVEL_TRACE);
+	logger = log_create("log_kernel", "CPU", 1, LOG_LEVEL_TRACE);
 	configCPU* conf = (configCPU*) cargarConfiguracion("./config", 4, CPU, logger);
-	int socketKernel, socketMemoria;
+	int socketKernel;
 	t_package pkg;
 
 	puts("CPU.");
@@ -54,18 +52,9 @@ int main (int argc, char *argv[]) {
 	printf("PUERTO_KERNEL: %d\n",conf->puertoKernel);
 	printf("PUERTO_MEMORIA %d\n",conf->puertoMemoria);
 
-
 	imprimirConsola(CPU);
 
-
-	/*Para cuando ande el parser:
-	char* sentencia = 'variables a, b';
-	analizadorLinea(sentencia, &primitivas,&primitivas_kernel);
-	printf("chau capo");
-	*/
-
-
-
+/*
 	if(cargarSoket(conf->puertoKernel, conf->ipKernel, &socketKernel, logger)){
 		//ERROR
 	}
@@ -73,35 +62,39 @@ int main (int argc, char *argv[]) {
 		//ERROR
 	}
 	log_debug(logger, "Conectado al Kernel");
-//	if(cargarSoket(conf->puertoMemoria, conf->ipMemoria, &socketMemoria, logger)){
-//		//ERROR
-//	}
-//	if(enviarHandshake(socketMemoria, CPU_HSK, MEMORIA_HSK,logger)){
-//		//ERROR
-//	}
-//	log_debug(logger, "Conectado a la Memoria");
-
-	while(1){
-		printf("Esperando mensaje del Kernel.\n");
-		if(recibir(socketKernel, &pkg, logger)){
-			//ERROR
-			close(socketKernel);
-			return EXIT_FAILURE;
-		}
-		printf("Mensaje recibido del kernels: %s\n",pkg.data);
-		free(pkg.data);
+*/
+	if(cargarSoket(conf->puertoMemoria, conf->ipMemoria, &socketMemoria, logger)){
+		//ERROR
+		return EXIT_FAILURE;
 	}
-	liberar_memoria(logger, conf);
+	if(enviarHandshake(socketMemoria, CPU_HSK, MEMORIA_HSK,logger)){
+		//ERROR
+		return EXIT_FAILURE;
+	}
+	log_debug(logger, "Conectado a la Memoria");
+
+//	while(1){
+//		printf("Esperando mensaje del Kernel.\n");
+//		if(recibir(socketKernel, &pkg, logger)){
+//			//ERROR
+//			close(socketKernel);
+//			return EXIT_FAILURE;
+//		}
+//		printf("Mensaje recibido del kernels: %s\n",pkg.data);
+//		free(pkg.data);
+//	}
+
+/*PARSER*/printf("-- INICIO PARSER --\n");
+	char* sentencia = "variables a, b\n";
+	analizadorLinea(depurarSentencia(sentencia), &primitivas, &primitivas_kernel);
+/*PARSER*/printf("-- FIN PARSER --\n");
+
+	free(logger);
+	free(conf);
 	return EXIT_SUCCESS;
 }
 
-void liberar_memoria(t_log* logger,configCPU* config) {
-	free(logger);
-	free(config);
-}
-
-
-/*char* depurarSentencia(char* sentencia) {
+char* depurarSentencia(char* sentencia) {
 
 	int i = strlen(sentencia);
 	while (string_ends_with(sentencia, "\n")) {
@@ -109,5 +102,4 @@ void liberar_memoria(t_log* logger,configCPU* config) {
 		sentencia = string_substring_until(sentencia, i);
 	}
 	return sentencia;
-}*/
-
+}

@@ -1,10 +1,3 @@
-/*
- * archivo_configuracion.c
- *
- *  Created on: 3/4/2017
- *      Author: utnso
- */
-
 #include "configuracion.h"
 
 void* cargarConfiguracion(char* path,int configParamAmount,processType configType, t_log* logger){
@@ -18,11 +11,13 @@ void* cargarConfiguracion(char* path,int configParamAmount,processType configTyp
 	configFile = config_create(path);
 	if (!configFile || configFile->properties->elements_amount == 0) {
 		log_error(logger, "No se encontro el archivo de configuracion.\n");
+		config_destroy(configFile);
 		exit(EXIT_FAILURE);
 	}
 
 	if (config_keys_amount(configFile) != configParamAmount) {
 		log_error(logger, "No se encuentran inicializados todos los parametros de configuracion requeridos.");
+		config_destroy(configFile);
 		exit(EXIT_FAILURE);
 	}
 
@@ -31,6 +26,7 @@ void* cargarConfiguracion(char* path,int configParamAmount,processType configTyp
 		confConsola = (configConsole*) malloc(sizeof(configConsole));
 		confConsola->puerto = leerPuerto(configFile, "PUERTO_KERNEL", logger);
 		confConsola->ip = leerIP(configFile, "IP_KERNEL", logger);
+		config_destroy(configFile);
 		return confConsola;
 	case CPU:
 		confCPU = (configCPU*)malloc(sizeof(configCPU));
@@ -38,11 +34,13 @@ void* cargarConfiguracion(char* path,int configParamAmount,processType configTyp
 		confCPU->ipKernel = leerIP(configFile, "IP_KERNEL", logger);
 		confCPU->puertoMemoria = leerPuerto(configFile, "PUERTO_MEMORIA", logger);
 		confCPU->ipMemoria = leerIP(configFile, "IP_MEMORIA", logger);
+		config_destroy(configFile);
 		return confCPU;
 	case FILESYSTEM:
 		confFileSystem = (configFileSystem*)malloc(sizeof(configFileSystem));
 		confFileSystem->puerto = leerPuerto(configFile, "PUERTO", logger);
 		confFileSystem->puntoMontaje = leerString(configFile, "PUNTO_MONTAJE", logger);
+		config_destroy(configFile);
 		return confFileSystem;
 	case KERNEL:
 		confKernel = (configKernel*)malloc(sizeof(configKernel));
@@ -60,6 +58,7 @@ void* cargarConfiguracion(char* path,int configParamAmount,processType configTyp
 		confKernel->semInits = leerString(configFile, "SEM_INIT", logger);
 		confKernel->sharedVars = leerString(configFile, "SHARED_VARS", logger);
 		confKernel->stackSize = leerInt(configFile, "STACK_SIZE", logger);
+		config_destroy(configFile);
 		return confKernel;
 	case MEMORIA:
 		confMemoria = (configMemoria*)malloc(sizeof(configMemoria));
@@ -69,11 +68,13 @@ void* cargarConfiguracion(char* path,int configParamAmount,processType configTyp
 		confMemoria->entradasCache =  leerInt(configFile, "ENTRADAS_CACHE", logger);
 		confMemoria->cacheXProc =  leerInt(configFile, "CACHE_X_PROC", logger);
 		confMemoria->retardoMemoria =  leerInt(configFile, "RETARDO_MEMORIA", logger);
-		configParamAmount = 6;
+		config_destroy(configFile);
 		return confMemoria;
 	default:
+			config_destroy(configFile);
 			return NULL;
 	}
+
 
 }
 
@@ -85,6 +86,7 @@ char* leerString (void* configFile, char* parametro, t_log* logger){
 	} else {
 		log_error(logger, "No se encuentra el parametro en el archivo de config.");//TODO generar el string correcto para el error
 		exit(EXIT_FAILURE);
+
 	}
 	return string;
 }
@@ -110,7 +112,6 @@ int leerPuerto (void* configFile, char* parametro, t_log* logger){
 char* leerIP (void* configFile, char* parametro, t_log* logger){
 	char* ip = "";
 	ip = leerString (configFile, parametro,logger);
-	validar_ip(ip,logger);
 	return ip;
 }
 
@@ -120,30 +121,6 @@ void validar_puerto(int puerto, t_log* logger){
 		exit(EXIT_FAILURE);
 	}
 	return;
-}
-
-void validar_ip(char* ip, t_log* logger) {
-	regex_t regex;
-	int regres;
-	char msgbuf[100];
-
-	regres = regcomp(&regex, "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
-					REG_EXTENDED);		//REVISAR LA EXPRESION REGULAR
-	if (regres) {
-		log_error(logger,"Error al generar la regex para validar IP.");
-		exit(1);
-	}
-
-	regres = regexec(&regex, ip, 0, NULL, 0);
-
-	if (regres == REG_NOMATCH) {
-		log_error(logger,"IP invalida.");
-		exit(EXIT_FAILURE);
-	} else {
-//		log_info(logger, "IP del Kernel valida.");
-	    regerror(regres, &regex, msgbuf, sizeof(msgbuf));
-//	    fprintf(stderr, "Regex match failed: %s\n", msgbuf);
-	}
 }
 
 

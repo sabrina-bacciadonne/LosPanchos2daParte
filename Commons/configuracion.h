@@ -71,7 +71,6 @@ int leerPuerto (void* configFile, char* parametro, t_log* logger);
 char* leerIP (void* configFile, char* parametro, t_log* logger);
 char* leerString (void* configFile, char* parametro, t_log* logger);
 void cerrar_archivo_config ();
-void validar_ip (char* ip, t_log* logger);
 void validar_puerto (int puerto, t_log* logger);
 
 #endif /* ARCHIVO_CONFIGURACION_H_ */
