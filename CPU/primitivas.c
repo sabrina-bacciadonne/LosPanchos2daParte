@@ -131,10 +131,9 @@ void imprimir(t_valor_variable valor_mostrar){
 void imprimirTexto(char*texto){
 	printf("imprimiendo...\n");
 	/*int largo = strlen(texto);
-	char *kernel_txt = malloc(largo);
-	char* barra_cero="\0";
+	char *kernel_txt = malloc(largo+1);
 	memcpy(kernel_txt, texto, largo);
-	memcpy(kernel_txt+largo, barra_cero, 1);
+	memcpy(kernel_txt+largo, "\0", 1);
 	log_info(logger,"Texto a Imprimir: %s\n", kernel_txt);
 	enviar(socketKernel, CPU_NUC_TXT, kernel_txt, largo+1, logger);
 	free(kernel_txt);

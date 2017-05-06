@@ -1,10 +1,3 @@
-/*
- * archivo_configuracion.c
- *
- *  Created on: 3/4/2017
- *      Author: utnso
- */
-
 #include "configuracion.h"
 
 void* cargarConfiguracion(char* path,int configParamAmount,processType configType, t_log* logger){
