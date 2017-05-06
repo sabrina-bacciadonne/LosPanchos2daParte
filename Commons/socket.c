@@ -128,7 +128,7 @@ uint32_t packageSize(uint32_t size){
 }
 
 char* compress(int code, char* data, uint32_t size, t_log* logger){
-	char* compressPack = (char*) malloc(packageSize(size));
+	char * compressPack = (char*) malloc(packageSize(size));
 	if (compressPack != NULL){
 		memcpy(compressPack, &code, sizeof(uint16_t));
 		memcpy(compressPack + sizeof(uint16_t), &size, sizeof(uint32_t));
@@ -139,7 +139,7 @@ char* compress(int code, char* data, uint32_t size, t_log* logger){
 	return NULL;
 }
 
-int enviar(int socket, uint16_t code, char* data, uint32_t size, t_log* logger){
+int enviar(int socket, uint16_t code, char * data, uint32_t size, t_log* logger){
 	log_trace(logger,"enviar()");
 	char* package = compress(code, data, size, logger);
 	int sizeOfData = packageSize(size);

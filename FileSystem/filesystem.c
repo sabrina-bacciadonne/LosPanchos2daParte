@@ -16,6 +16,8 @@ int main (int argc, char *argv[]) {
 	printf("PUERTO: %d\n",conf->puerto);
 	printf("PUNTO MONTAJE: %s\n",conf->puntoMontaje);
 
+	imprimirConsola(FILESYSTEM);
+
 	if(escuchar(conf->puerto, &socketListen, logger)){
 		//ERROR
 	}

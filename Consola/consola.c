@@ -4,56 +4,41 @@
 
 #include "consola.h"
 
+t_log* logger;
+t_list* hilos;
+configConsole* conf;
+pthread_mutex_t mutex_log;
 
-int main (int argc, char *argv[]) {
-	t_log* logger = log_create("log_consola", "CONSOLA", 1, LOG_LEVEL_TRACE);
-	configConsole* conf = (configConsole*) cargarConfiguracion("./config", 2, CONSOLA, logger);
-	int socketKernel;
+void agregar_hilo_lista(pthread_mutex_t* semaforo, t_list* lista,
+		pthread_t* hilo) {
+	pthread_mutex_lock(semaforo);
+	list_add(lista, hilo);
+	pthread_mutex_unlock(semaforo);
+}
 
-	consola_imprimir_encabezado();
-	printf("IP_KERNEL: %s\n",conf->ip);
-	printf("PUERTO KERNEL: %d\n",conf->puerto);
+int main(int argc, char *argv[]) {
+	logger = log_create("log_consola", "CONSOLA", 1, LOG_LEVEL_TRACE);
+	conf = (configConsole*) cargarConfiguracion("./config", 2, CONSOLA, logger);
+	hilos = list_create();
 
-	//Me conecto Al Kernel
-	if(cargarSoket(conf->puerto, conf->ip, &socketKernel, logger)){
-		//ERROR
-	}
-	//Hago el handshake con el Kernel.
-	if(enviarHandshake(socketKernel, CONSOLA_HSK, KERNEL_HSK,logger)){
-		//ERROR
-	}
-	while(1){
-//		consola_imprimir_menu();
-		printf("Ingrese una tecla para enviar \"HOLA!\" al Kernel.\n");
-		getchar();
-		if(enviar(socketKernel,HOLA,"HOLA!",strlen("HOLA!"),logger)){
-			//ERROR
-			close(socketKernel);
-			return EXIT_FAILURE;
-		}
-	}
+	printf("IP_KERNEL: %s\n", conf->ip);
+	printf("PUERTO KERNEL: %d\n", conf->puerto);
+	printf("\n");
+	printf("\n");
+	printf("\n");
 
-	liberar_memoria(logger, conf);
+	imprimirConsola(CONSOLA);
+//	while ((consola_reconocerComando() == 0)) {
+//		imprimirConsola(CONSOLA);
+//	}
+
+	liberar_memoria();
 	return EXIT_SUCCESS;
 }
 
-void liberar_memoria(t_log* logger,configConsole* config) {
-	free(logger);
-	free(config);
-}
-
-
-void consola_imprimir_encabezado(){
-	printf("*********** BIENVENIDO A LA CONSOLA ***********\n");
-	printf("\n");
-}
-
-void consola_imprimir_menu(){
-	printf("Por favor seleccione la opcion correspondiente:\n");
-	printf("\n");
-	printf("1) Iniciar programa\n");
-	printf("2) Finalizar programa\n");
-	printf("3) Desconectar consola\n");
-	printf("4) Limpiar mensajes\n");
+void liberar_memoria() {
+	log_destroy(logger);
+	free(conf);
+	list_destroy(hilos);
 }
 

@@ -53,6 +53,10 @@ enum codigoID {	CONSOLA_HSK = 1894,
 				TAM_PAG,
 				MEMORIA_PROG,
 				MEM_CPU_POS, // Memoria manda a CPU una posición de memoria
+				MEM_CPU_DERE,
+				CPU_MEM_POS,
+				CPU_NUC_VAL,
+				CPU_NUC_TXT,
 				//FILE SYSTEM
 				HOLA
 }; // La estructura del nombre sería EMISOR_RECEPTOR_DESCRIPCIONDELMENSAJE
@@ -69,7 +73,7 @@ int cargarSoket(int iPuerto,const char* ip, int* pSocket, t_log* logger);
 int enviarHandshake (int socket, uint16_t codigoMio,uint16_t codigoOtro, t_log* logger);
 int recibirHandshake (int socket, uint16_t codigoMio, uint16_t* codigoOtro, t_log* logger);
 uint32_t packageSize(uint32_t size);
-char* compress(int code, char* data, uint32_t size, t_log* logger);
+char* compress(int code, char * data, uint32_t size, t_log* logger);
 int enviar(int socket, uint16_t code, char* data, uint32_t size, t_log* logger);
 int recibir(int socket,t_package* mensaje, t_log* logger);
 int recvPkg(int socket, char** buffer, uint32_t size, t_log* logger);
