@@ -69,8 +69,8 @@ t_valor_variable dereferenciar(t_puntero direccion_variable){
 	int valor;
 	memcpy(&valor, pkg->data, 4);
 	liberar_paquete(pkg);
-	log_info(logger,"Valor dereferenciado: %d", valor);
-	return valor;*/
+	log_info(logger,"Valor dereferenciado: %d", valor);*/
+	return EXIT_SUCCESS;
 }
 void asignar(t_puntero direccion_variable,t_valor_variable valor){
 	// Inserta una copia del valor en la variable ubicada en direccion_variable.
@@ -122,15 +122,15 @@ void retornar(t_valor_variable retorno){
 }
 void imprimir(t_valor_variable valor_mostrar){
 	printf("imprimiendo...\n");
-	char* kernel_valor = malloc(sizeof(t_valor_variable));
+	/*char* kernel_valor = malloc(sizeof(t_valor_variable));
 	kernel_valor = &valor_mostrar;
 	log_info(logger,"Valor a Imprimir: %d\n", kernel_valor);
-	enviar(socketKernel, CPU_NUC_VAL, kernel_valor, sizeof(t_valor_variable), logger);
+	enviar(socketKernel, CPU_NUC_VAL, kernel_valor, sizeof(t_valor_variable), logger);*/
 	return;
 }
 void imprimirTexto(char*texto){
 	printf("imprimiendo...\n");
-	int largo = strlen(texto);
+	/*int largo = strlen(texto);
 	char *kernel_txt = malloc(largo);
 	char* barra_cero="\0";
 	memcpy(kernel_txt, texto, largo);
@@ -138,7 +138,7 @@ void imprimirTexto(char*texto){
 	log_info(logger,"Texto a Imprimir: %s\n", kernel_txt);
 	enviar(socketKernel, CPU_NUC_TXT, kernel_txt, largo+1, logger);
 	free(kernel_txt);
-	return;
+	return;*/
 }
 //void entradaSalida(t_nombre_dispositivo dispositivo,int tiempo){
 //	printf("imprimiendo...\n");
