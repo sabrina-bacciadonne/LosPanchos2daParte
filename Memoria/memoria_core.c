@@ -33,19 +33,19 @@ void generarTablaPaginas() {
 		t_mem* reg1 = malloc(sizeof(t_mem));
 		reg1->idProceso = -1; // -1 indica que esta libre
 		reg1->marco = i;
-		reg1->pagina = -1; // indica que esta libre
+		reg1->pagina = 0;
 		list_add(tabla, reg1);
 
 	}
 
-	memcpy(memoria, tabla, CANTIDAD_MARCOS * 12);
+	memcpy(memoria, tabla, CANTIDAD_MARCOS * sizeof(t_mem));
 
 	// libero la estructura auxiliar (ya que tengo todo en memoria)
 	free(tabla);
 
 }
 
-// Busca un frame libre y lo asigna al proceso
+// Busca uno o mas frames libres y los asigna al proceso
 int asignarPaginaAProceso(int pid, int cantPaginasRequeridas) {
 	int i = 0;
 	int j = 0;
@@ -54,42 +54,56 @@ int asignarPaginaAProceso(int pid, int cantPaginasRequeridas) {
 	t_list* tabla = obtenerTablaPaginas();
 
 	for (j = 0; j < cantPaginasRequeridas; j++) {
-		for (i = 0 + libre; i < CANTIDAD_MARCOS; i++) {
+		for (i = 0; i < obtenerMarcosMemoriaFisica(); i++) {
 			t_mem* m = (t_mem*) list_get(tabla, i);
 
 			// El marco esta libre
 			if (m != NULL && m->idProceso == -1) {
 				libre++;
-				break;
-			}
+				int ultimoId = obtenerIdUltimaPagina(pid);
 
-		}
-	}
+				if (ultimoId == -1)
+					m->pagina = 1;
 
-	if (libre < cantPaginasRequeridas)
-		return MARCOS_INSUFICIENTES;
+				// Tiene mas de una pagina
+				else
+					m->pagina = ultimoId + 1;
 
-	// Asigno
-
-	i = 0;
-	j = 0;
-	libre = 0;
-
-	for (j = 0; j < cantPaginasRequeridas; j++) {
-		for (i = 0 + libre; i < CANTIDAD_MARCOS; i++) {
-			t_mem* m = (t_mem*) list_get(tabla, i);
-
-			// El marco esta libre
-			if (m != NULL && m->idProceso == -1) {
 				m->idProceso = pid;
-				m->pagina = i;
+
 				break;
+
 			}
 
 		}
 	}
+
+	if (libre < cantPaginasRequeridas) {
+		// rollback
+		liberarProcesoMemoria(pid);
+		return MARCOS_INSUFICIENTES;
+	}
+
 
 	return 0;
+}
+
+// Obtiene el ultimo id de pagina de un proceso en memoria
+int obtenerIdUltimaPagina(int pid) {
+	int i = 0;
+	t_list* tabla = obtenerTablaPaginas();
+	int pAux = -1;
+	for (i = 0; i < obtenerMarcosMemoriaFisica(); i++) {
+		t_mem* m = (t_mem*) list_get(tabla, i);
+
+		if (m != NULL && m->idProceso == pid) {
+			pAux = m->pagina;
+		}
+
+	}
+
+	return pAux;
+
 }
 
 void listarTablaPaginas() {
@@ -97,11 +111,11 @@ void listarTablaPaginas() {
 
 	t_list* tabla = obtenerTablaPaginas();
 
-	for (i = 0; i < CANTIDAD_MARCOS; i++) {
+	for (i = 0; i < obtenerMarcosMemoriaFisica(); i++) {
 
 		t_mem* m = (t_mem*) list_get(tabla, i);
 		if (m != NULL)
-			printf("pagina: %d - pid: %d - marco: %d\n", m->pagina,
+			log_info(logger,"pagina: %d - pid: %d - marco: %d", m->pagina,
 					m->idProceso, m->marco);
 
 	}
@@ -175,7 +189,7 @@ int traducirADireccionFisica(int pagina, int processId) {
 	t_list* tabla = obtenerTablaPaginas();
 
 	int i;
-	for (i = 0; i < CANTIDAD_MARCOS; i++) {
+	for (i = 0; i < obtenerMarcosMemoriaFisica(); i++) {
 		t_mem* p2 = (t_mem*) list_get(tabla, i);
 		if (p2 != NULL)
 			if (p2->pagina == pagina && p2->idProceso == processId) {
@@ -193,7 +207,7 @@ t_mem* buscarPaginaPorMarco(int marco) {
 
 	t_list* tabla = obtenerTablaPaginas();
 
-	for (i = 0; i < CANTIDAD_MARCOS; i++) {
+	for (i = 0; i < obtenerMarcosMemoriaFisica(); i++) {
 
 		t_mem* m = (t_mem*) list_get(tabla, i);
 		if (m != NULL)
@@ -213,13 +227,13 @@ int liberarProcesoMemoria(int processId) {
 	t_list* tabla = obtenerTablaPaginas();
 
 	int i = 0;
-	for (i = 0; i < CANTIDAD_MARCOS; i++) {
+	for (i = 0; i < obtenerMarcosMemoriaFisica(); i++) {
 		t_mem* reg = (t_mem*) list_get(tabla, i);
 
 		if (reg != NULL)
 			if (reg->idProceso == processId) {
 				reg->idProceso = -1; // -1 indica que esta libre
-				reg->pagina = -1; // indica que esta libre
+				reg->pagina = 0;
 			}
 
 	}
@@ -256,7 +270,7 @@ void memoriaInit(t_mem_server* config) {
 	// Para mejor visualizacion
 	memset(memoria, '-', TAMANIO_MARCO * CANTIDAD_MARCOS);
 
-	if (CANTIDAD_MARCOS * TAMANIO_MARCO - CANTIDAD_MARCOS * 12 < 0) {
+	if (CANTIDAD_MARCOS * TAMANIO_MARCO - CANTIDAD_MARCOS * sizeof(t_mem) < 0) {
 		log_error(logger, "Error de configuracion");
 		exit(1);
 	}
