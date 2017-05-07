@@ -72,6 +72,7 @@ void liberarMemoria();
 bloqueMemoria* getComienzoMemoria();
 t_list* obtenerTablaPaginas();
 void memoriaInit(t_mem_server* config);
+int obtenerIdUltimaPagina(int pid);
 
 //void pruebas(t_log* logger, int marcosTablaPagina, t_mem_server* mem);
 

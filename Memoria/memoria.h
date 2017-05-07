@@ -5,6 +5,7 @@
 #ifndef TP_2017_1C_LOSPANCHOS_MEMORIA_H
 #define TP_2017_1C_LOSPANCHOS_MEMORIA_H
 
+<<<<<<< HEAD
 #include "../Commons/configuracion.h"
 #include "../Commons/socket.h"
 #include "../Commons/console.h"
@@ -20,6 +21,14 @@ void sleepAccesoMemoria();
 void inicializarMemoria(t_log* logger,configMemoria* datos_config);
 int inicializar_Conexion(t_log* logger,configMemoria* datos_config);
 
+=======
+#include <commons/log.h>
+#include <commons/config.h>
+
+#include <utilstp/console.h>
+#include <utilstp/configuracion.h>
+#include <utilstp/socket.h>
+>>>>>>> c49313cbeb1c79b71a61b3dd2940b5f506e89398
 
 #endif //TP_2017_1C_LOSPANCHOS_MEMORIA_H
 

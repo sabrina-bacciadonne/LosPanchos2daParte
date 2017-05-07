@@ -16,21 +16,30 @@ void pruebas(t_log* logger, int marcosTablaPagina) {
 	log_info(logger, "INICIO DE PRUEBAS");
 	log_info(logger, "----------------------------------");
 
-	log_info(logger, "Asignando paginas a procesos");
+	log_info(logger, "Asignando 1 pagina a procesos 1, 2, 3 y 4 ");
 
 	int me = asignarPaginaAProceso(1, 1);
 	me = asignarPaginaAProceso(2, 1);
+	me = asignarPaginaAProceso(3, 1);
+	me = asignarPaginaAProceso(4, 1);
 
-	if (me == 0)
-		log_info(logger, "Asignacion ok");
-	else
-		log_info(logger, "Error: %d", me);
+	listarTablaPaginas();
+
+	log_info(logger,"Finalizando procesos 2 y 4");
+	liberarProcesoMemoria(2);
+	liberarProcesoMemoria(4);
+
+	listarTablaPaginas();
+
+	log_info(logger,"Asignando paginas a proceso 5");
+
+	me = asignarPaginaAProceso(5, 2);
 
 	listarTablaPaginas();
 
 	// Prueba de escritura en marcos
 
-	int resEscribir = escribirMemoria(1, 0, 0, "Esteban", 7);
+	int resEscribir = escribirMemoria(1, 1, 0, "Esteban", 7);
 	resEscribir = escribirMemoria(2, 1, 0, "Paz", 3);
 
 	switch (resEscribir) {
@@ -45,7 +54,7 @@ void pruebas(t_log* logger, int marcosTablaPagina) {
 	// Prueba de lectura de marcos
 
 	char* test = malloc(TAMANIO_MARCO);
-	int d = leerMemoria(1, 0, 0, test);
+	int d = leerMemoria(1, 1, 0, test);
 
 	if (d == 0)
 		log_info(logger, "Prueba lectura: %s", test);
@@ -113,7 +122,7 @@ void pruebas(t_log* logger, int marcosTablaPagina) {
 
 	for (j = 0; j < CANTIDAD_MARCOS - marcosTablaPagina; j++) {
 		char* t = malloc(TAMANIO_MARCO);
-		memcpy(t, p, 13);
+		memcpy(t, p, TAMANIO_MARCO);
 		t_mem* m = buscarPaginaPorMarco(j);
 		if (m != NULL) {
 			log_info(logger, "pid: %d - marco %d - pagina %d: %s", m->idProceso,

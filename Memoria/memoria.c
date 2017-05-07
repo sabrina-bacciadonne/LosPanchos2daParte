@@ -140,14 +140,6 @@ void inicializarMemoria(t_log* logger, configMemoria* datos_config) {
 	int cant_marcos = datos_config->marcos;
 	memoria = malloc(sizeof(char*) * cant_marcos); //Reservo memoria con cantidad de frames disponibles
 
-	puts("Memoria\n");
-	printf("Puerto = %d\n", datos_config->puerto);
-	printf("Marco_Size = %d\n", datos_config->marcoSize);
-	printf("Marcos = %d\n", datos_config->marcos);
-	printf("Entradas_Cache = %d\n", datos_config->entradasCache);
-	printf("Cache_X_Proc = %d\n", datos_config->cacheXProc);
-	printf("Retardo_Memoria = %d\n", datos_config->retardoMemoria);
-
 }
 
 int conexion_kernel(t_log* logger, configMemoria* datos_config) {
