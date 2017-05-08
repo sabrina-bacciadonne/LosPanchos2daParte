@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define N_BUFFER 1024
 
 void modificar_retardo(){
 
