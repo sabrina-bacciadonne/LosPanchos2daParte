@@ -8,11 +8,33 @@
 #include "tad_memoria.h"
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-void consola_imprimirRetardo(){
+#define N_BUFFER 1024
+
+void modificar_retardo(){
+
+
+	FILE *fp;
+
+	printf("Ingrese la cantidad de milisegundos de retardo\n");
+	int leer;
+	scanf("%d", &leer);
+	printf("Nuevo valor de retardo: %d\n",leer);
+
+	fp = fopen ( "config", "r+" );
+
+	if (fp==NULL) {
+
+		fputs ("File error",stderr);
+
+	     exit (1);
+    }else {
+    	printf ("Acá estamos");
+    }
+
 
 }
-
 void consola_imprimirDump(){
 
 }
@@ -37,7 +59,7 @@ void consola_reconocerComando() {
 
 	switch (opcion) {
 	case RETARDO:
-		consola_imprimirRetardo();
+		modificar_retardo();
 		break;
 	case DUMP:
 		consola_imprimirDump();
