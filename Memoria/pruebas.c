@@ -8,7 +8,7 @@
 #include "memoria_core.h"
 #include "pruebas.h"
 
-void pruebas(t_log* logger, int marcosTablaPagina) {
+void pruebas(t_log* logger, int marcosTablaPagina, t_mem_server* config) {
 
 	// Prueba de asignacion de marcos a procesos
 
@@ -19,28 +19,17 @@ void pruebas(t_log* logger, int marcosTablaPagina) {
 	log_info(logger, "Asignando 1 pagina a procesos 1, 2, 3 y 4 ");
 
 	int me = asignarPaginaAProceso(1, 1);
-	me = asignarPaginaAProceso(2, 1);
-	me = asignarPaginaAProceso(3, 1);
+	me = asignarPaginaAProceso(2, 3);
+	me = asignarPaginaAProceso(3, 3);
 	me = asignarPaginaAProceso(4, 1);
-
-	listarTablaPaginas();
-
-	log_info(logger,"Finalizando procesos 2 y 4");
-	liberarProcesoMemoria(2);
-	liberarProcesoMemoria(4);
-
-	listarTablaPaginas();
-
-	log_info(logger,"Asignando paginas a proceso 5");
-
-	me = asignarPaginaAProceso(5, 2);
 
 	listarTablaPaginas();
 
 	// Prueba de escritura en marcos
 
-	int resEscribir = escribirMemoria(1, 1, 0, "Esteban", 7);
-	resEscribir = escribirMemoria(2, 1, 0, "Paz", 3);
+	int resEscribir = escribirMemoria(1, 1, 0, "Programa1", 9);
+	resEscribir = escribirMemoria(2, 1, 0, "Programa2", 9);
+	resEscribir = escribirMemoria(3, 1, 0, "Programa3", 9);
 
 	switch (resEscribir) {
 	case MARCO_DEMASIADO_CHICO:
@@ -51,9 +40,10 @@ void pruebas(t_log* logger, int marcosTablaPagina) {
 		break;
 	}
 
+
 	// Prueba de lectura de marcos
 
-	char* test = malloc(TAMANIO_MARCO);
+	char* test = malloc(config->marcos_size);
 	int d = leerMemoria(1, 1, 0, test);
 
 	if (d == 0)
@@ -63,7 +53,7 @@ void pruebas(t_log* logger, int marcosTablaPagina) {
 
 	free(test);
 
-	test = malloc(TAMANIO_MARCO);
+	test = malloc(config->marcos_size);
 
 	log_info(logger, "2do test");
 
@@ -80,21 +70,7 @@ void pruebas(t_log* logger, int marcosTablaPagina) {
 
 	log_info(logger, "Dump de memoria completo");
 
-	int j = 0;
-
-	bloqueMemoria* p = getComienzoMemoria();
-
-	for (j = 0; j < CANTIDAD_MARCOS - marcosTablaPagina; j++) {
-		char* t = malloc(TAMANIO_MARCO);
-		memcpy(t, p, 13);
-		t_mem* m = buscarPaginaPorMarco(j);
-		if (m != NULL) {
-			log_info(logger, "pid: %d - marco %d - pagina %d: %s", m->idProceso,
-					j, m->pagina, t);
-			free(t);
-		}
-		p++;
-	}
+	printDump(config);
 
 	// Prueba de liberacion de marcos de procesos (finalizacion)
 
@@ -116,26 +92,36 @@ void pruebas(t_log* logger, int marcosTablaPagina) {
 
 	log_info(logger, "Dump de memoria completo");
 
-	j = 0;
-
-	p = getComienzoMemoria();
-
-	for (j = 0; j < CANTIDAD_MARCOS - marcosTablaPagina; j++) {
-		char* t = malloc(TAMANIO_MARCO);
-		memcpy(t, p, TAMANIO_MARCO);
-		t_mem* m = buscarPaginaPorMarco(j);
-		if (m != NULL) {
-			log_info(logger, "pid: %d - marco %d - pagina %d: %s", m->idProceso,
-					j, m->pagina, t);
-			free(t);
-			//free(m);
-
-		}
-		p++;
-	}
+	printDump(config);
 
 	log_info(logger, "----------------------------------");
 	log_info(logger, "FIN DE PRUEBAS");
 	log_info(logger, "----------------------------------");
 
+}
+
+void printDump(t_mem_server* config) {
+	int j = 0;
+
+	char* p = getComienzoMemoria();
+
+
+	for (j = 0; j < config->marcos; j++) {
+		char* t = malloc(config->marcos_size);
+		memcpy(t, p, config->marcos_size);
+		t_mem* m = buscarPaginaPorMarco(j);
+		if (m != NULL) {
+			if (m->idProceso != -1)
+				log_info(logger, "pid: %d - marco %d - pagina %d: %s",
+						m->idProceso, j, m->pagina, t);
+			else
+				log_info(logger, "pid: -1 - marco %d - pagina %d: ADMIN", j,
+						m->pagina);
+
+			free(t);
+
+		}
+
+		p+=config->marcos_size;
+	}
 }

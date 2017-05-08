@@ -11,6 +11,9 @@
 #include <commons/collections/list.h>
 #include <commons/log.h>
 
-void pruebas(t_log* logger, int marcosTablaPagina);
+#include "global.h"
+
+void pruebas(t_log* logger, int marcosTablaPagina, t_mem_server* config);
+void printDump(t_mem_server* config);
 
 #endif /* PRUEBAS_H_ */
