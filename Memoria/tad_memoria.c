@@ -6,27 +6,24 @@
  */
 
 #include "tad_memoria.h"
+#include "memoria.h"
 #include <ctype.h>
 #include <stdio.h>
 
-void modificar_retardo(){
+int nuevo_retardo;
 
-	FILE *fp;
+void modificar_retardo(){
+	int leer;
+
 	   printf("Ingrese la cantidad de milisegundos de retardo\n");
-	  int leer;
+
 	   scanf("%d", &leer);
 	   printf("Nuevo valor de retardo: %d\n",leer);
-	   fp = fopen ( "config", "r+" );
-	  if (fp==NULL) {
-	   fputs ("File error",stderr);
-	   exit (1);
-	  }else {
 
-	printf ("Acá estamos");
-
-	}
+	  // nuevo_retardo = leer;
 
 }
+
 
 void consola_imprimirDump(){
 
@@ -64,5 +61,6 @@ void consola_reconocerComando() {
 		consola_imprimirTamanio();
 		break;
 	}
+
 
 }

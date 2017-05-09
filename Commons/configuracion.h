@@ -15,6 +15,7 @@
 #include <regex.h>
 #include <string.h>
 #include "commons.h"
+#include "../Memoria/global.h"
 
 
 #define PUERTO_MAX 1024

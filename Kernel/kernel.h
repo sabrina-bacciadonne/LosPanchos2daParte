@@ -12,6 +12,9 @@
 #include <commons/log.h>
 #include <commons/config.h>
 
+#include <utilstp/console.h>
+#include <utilstp/configuracion.h>
+#include <utilstp/socket.h>
 
 void liberar_memoria(t_log* logger, configKernel* config);
 

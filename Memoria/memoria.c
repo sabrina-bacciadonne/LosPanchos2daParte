@@ -1,9 +1,5 @@
-//
-// Created by Martin Gauna on 4/2/17.
-//
 
 #include "memoria.h"
-#include "tad_memoria.h"
 
   void liberar_memoria(t_log* logger,configMemoria* config) {
   	free(logger);
@@ -12,7 +8,7 @@
 
 int main () {
 	t_log* logger = log_create("log_memoria", "MEMORIA", 1, LOG_LEVEL_TRACE);
-	configMemoria* conf = (configMemoria*) cargarConfiguracion( "./config", 7, MEMORIA, logger);
+	t_mem_server* conf = (t_mem_server*) cargarConfiguracion( "./config", 7, MEMORIA, logger);
 	int socketEscucha, socketKernel;
 //	int flag = 1;
 	uint16_t codigoHandshake;
@@ -20,14 +16,15 @@ int main () {
 
 	printf("PUERTO: %d\n",conf->puerto);
 	printf("MARCOS: %d\n",conf->marcos);
-	printf("MARCOS SIZE: %d\n",conf->marcoSize);
-	printf("ENTRADAS CACHE: %d\n",conf->entradasCache);
-	printf("CACHE X PROC: %d\n",conf->cacheXProc);
-	printf("RETARDO MEMORIA: %d\n",conf->retardoMemoria);
+	printf("MARCOS SIZE: %d\n",conf->marcos_size);
+	printf("ENTRADAS CACHE: %d\n",conf->entradas_cache);
+	printf("CACHE X PROC: %d\n",conf->cache_x_proc);
+	printf("RETARDO MEMORIA: %d\n",conf->retardo_memoria);
 	puts("\n");
 
 	imprimirConsola(MEMORIA);
 	consola_reconocerComando();
+	//memoriaInit(conf);
 
 
 	if(escuchar(conf->puerto, &socketEscucha, logger)){

@@ -6,7 +6,7 @@ void* cargarConfiguracion(char* path,int configParamAmount,processType configTyp
 	configCPU* confCPU;
 	configFileSystem* confFileSystem;
 	configKernel* confKernel;
-	configMemoria* confMemoria;
+	t_mem_server* confMemoria;
 
 	configFile = config_create(path);
 	if (!configFile || configFile->properties->elements_amount == 0) {
@@ -61,13 +61,13 @@ void* cargarConfiguracion(char* path,int configParamAmount,processType configTyp
 		config_destroy(configFile);
 		return confKernel;
 	case MEMORIA:
-		confMemoria = (configMemoria*)malloc(sizeof(configMemoria));
+		confMemoria = (t_mem_server*)malloc(sizeof(t_mem_server));
 		confMemoria->puerto = leerPuerto(configFile, "PUERTO", logger);
 		confMemoria->marcos = leerInt(configFile, "MARCOS", logger);
-		confMemoria->marcoSize = leerInt(configFile, "MARCO_SIZE", logger);
-		confMemoria->entradasCache =  leerInt(configFile, "ENTRADAS_CACHE", logger);
-		confMemoria->cacheXProc =  leerInt(configFile, "CACHE_X_PROC", logger);
-		confMemoria->retardoMemoria =  leerInt(configFile, "RETARDO_MEMORIA", logger);
+		confMemoria->marcos_size = leerInt(configFile, "MARCO_SIZE", logger);
+		confMemoria->entradas_cache =  leerInt(configFile, "ENTRADAS_CACHE", logger);
+		confMemoria->cache_x_proc =  leerInt(configFile, "CACHE_X_PROC", logger);
+		confMemoria->retardo_memoria =  leerInt(configFile, "RETARDO_MEMORIA", logger);
 		config_destroy(configFile);
 		return confMemoria;
 	default:
