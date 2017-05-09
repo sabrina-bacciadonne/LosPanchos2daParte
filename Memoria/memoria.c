@@ -8,7 +8,7 @@
 
 int main () {
 	t_log* logger = log_create("log_memoria", "MEMORIA", 1, LOG_LEVEL_TRACE);
-	t_mem_server* conf = (t_mem_server*) cargarConfiguracion( "./config", 7, MEMORIA, logger);
+	configMemoria* conf = (configMemoria*) cargarConfiguracion( "./config", 7, MEMORIA, logger);
 	int socketEscucha, socketKernel;
 //	int flag = 1;
 	uint16_t codigoHandshake;
@@ -16,10 +16,10 @@ int main () {
 
 	printf("PUERTO: %d\n",conf->puerto);
 	printf("MARCOS: %d\n",conf->marcos);
-	printf("MARCOS SIZE: %d\n",conf->marcos_size);
-	printf("ENTRADAS CACHE: %d\n",conf->entradas_cache);
-	printf("CACHE X PROC: %d\n",conf->cache_x_proc);
-	printf("RETARDO MEMORIA: %d\n",conf->retardo_memoria);
+	printf("MARCOS SIZE: %d\n",conf->marcoSize);
+	printf("ENTRADAS CACHE: %d\n",conf->entradasCache);
+	printf("CACHE X PROC: %d\n",conf->cacheXProc);
+	printf("RETARDO MEMORIA: %d\n",conf->retardoMemoria);
 	puts("\n");
 
 	imprimirConsola(MEMORIA);

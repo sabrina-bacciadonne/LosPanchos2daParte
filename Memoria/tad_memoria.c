@@ -20,7 +20,9 @@ void modificar_retardo(){
 	   scanf("%d", &leer);
 	   printf("Nuevo valor de retardo: %d\n",leer);
 
-	  // nuevo_retardo = leer;
+	   nuevo_retardo = leer;
+
+	   printf("retardo: %d\n",nuevo_retardo);
 
 }
 
